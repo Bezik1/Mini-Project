@@ -107,13 +107,15 @@ void Optimizer::InitRandomGenome(vector<int>& individual) {
     }
 }
 
-void Optimizer::PrintIndivual(vector<int>& individual, double fitness) const {
-    cout << "Genome: [";
+void Optimizer::PrintGenome(vector<int>& individual) const {
+	cout << "Genome: [";
     for (size_t i = 0; i < individual.size(); ++i) {
         cout << individual[i] << (i < individual.size() - 1 ? " " : "");
     }
     cout << "]" << endl;
+}
 
+void Optimizer::PrintIndivual(vector<int>& individual, double fitness) const {
     vector<int> group_counts(evaluator.GetNumGroups(), 0);
     for (int group : individual) {
         group_counts[group]++;

@@ -7,10 +7,10 @@ using namespace std;
 using namespace LcVRPContest;
 
 int main() {
-    int populationSize = 1000;
+    int populationSize = 10000;
     double mutProb = 0.1;
-    int numTurns = 10;
-    int numEpochs = 1000;
+    int numTurns = 5;
+    int numEpochs = 200;
 
     int numGroups = 6;
 
@@ -21,10 +21,6 @@ int main() {
     cout << "Number of clients: " << data.GetNumCustomers() << endl;
 
     Evaluator evaluator(data, numGroups);
-
-    cout << evaluator.GetSolutionSize() << endl;
-    cout << evaluator.GetNumGroups() << endl;
-
     Optimizer optimizer(evaluator, populationSize, numTurns, mutProb);
     
     cout << "\n=== INITALIZE OPTIMIZATION ===" << endl;
@@ -36,17 +32,14 @@ int main() {
         optimizer.RunIteration();
 
         if (i % 50 == 0 || i < 50) {
-            double bestF = optimizer.GetCurrentBestFitness();
-            cout << "Iteration " << i << " | Best fitness: " << bestF << endl;
-        }
-    }
+            double bestFitness = optimizer.GetCurrentBestFitness();
+            cout << "Iteration " << i << " | Best fitness: " << bestFitness << endl;
 
-    Individual* best = optimizer.GetCurrentBest();
-    if (best != nullptr) {
-        cout << "\n=== FINISHED OPTIMIZATION ===" << endl;
-        cout << "Final Fitness: " << optimizer.GetCurrentBestFitness() << endl;
-        
-        optimizer.PrintIndivual(*(best->getGenome()), best->getFitness());
+                Individual* best = optimizer.GetCurrentBest();
+                if (best != NULL) {
+                    optimizer.PrintIndivual(*(best->getGenome()), best->getFitness());
+                }
+        }
     }
 
     return 0;

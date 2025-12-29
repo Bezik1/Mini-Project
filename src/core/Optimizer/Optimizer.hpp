@@ -24,6 +24,7 @@ namespace LcVRPContest {
 		Individual* GetCurrentBest() { return currentBest; }
 		double GetCurrentBestFitness() const { return currentBestFitness; }
 		void PrintIndivual(vector<int>& individual, double fitness) const;
+		void PrintGenome(vector<int>& individual) const;
 
 	private:
 		static const double DEFAULT_MUT_PROB;
