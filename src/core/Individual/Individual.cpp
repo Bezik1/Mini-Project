@@ -7,31 +7,37 @@
 using namespace std;
 using namespace LcVRPContest;
 
-const double Individual::MUT_PROBABILITY = 0.01;
+const double Individual::MUT_PROBABILITY = 0.1;
+
+
+Individual::Individual(vector<int> newGenome, int newNumGroups, double newMutProb, Evaluator &newEvaluator) 
+        : evaluator(newEvaluator),
+        genome(std::move(newGenome)) {
+    
+    mutProb = newMutProb;
+    numGroups = newNumGroups;
+    numCustomers = genome.size();
+    fitness = evaluator.Evaluate(genome);
+    valid = fitness >= 0;
+}
 
 Individual::Individual(vector<int> newGenome, int newNumGroups, Evaluator &newEvaluator) 
-        : evaluator(newEvaluator) {
+        : evaluator(newEvaluator),
+        genome(std::move(newGenome)) {
     
+    mutProb = MUT_PROBABILITY;
     numGroups = newNumGroups;
-    numCustomers = newGenome.size();
-
-    for(size_t i = 0; i < numCustomers; i++) {
-        genome[i] = newGenome[i];
-    }
-
+    numCustomers = genome.size();
     fitness = evaluator.Evaluate(genome);
     valid = fitness >= 0;
 }
 
 Individual::Individual(const Individual &other)
-    : evaluator(other.evaluator) {
+    : evaluator(other.evaluator),
+    genome(other.genome) {
+    
     numCustomers = other.numCustomers;
     numGroups = other.numGroups;
-
-    for(size_t i = 0; i < other.numCustomers; i++) {
-        genome[i] = other.genome[i];
-    }
-    
     fitness = other.fitness;
     valid = other.valid;
 }

@@ -6,7 +6,7 @@
 using namespace LcVRPContest;
 
 const int Optimizer::DEFAULT_POP_SIZE = 1000;
-const int Optimizer::DEFAULT_TORUNAMENT_TURN = 3;
+const int Optimizer::DEFAULT_TORUNAMENT_TURN = 10;
 
 Optimizer::Optimizer(Evaluator& evaluator) 
 	: evaluator(evaluator), 
@@ -26,14 +26,23 @@ Optimizer::Optimizer(Evaluator& evaluator, int newPopSize)
 	popSize = newPopSize;
 }
 
+Optimizer::~Optimizer() {
+	for(int i=0; i<population.size(); i++)
+		delete population[i];
+
+	if(currentBest != NULL) delete currentBest;
+}
+
 void Optimizer::Initialize() {
+	for(int i=0; i<population.size(); i++)
+		delete population[i];
 	population.clear();
 
 	for(int i=0; i<popSize; i++) {
 		vector<int> randomGenome(evaluator.GetSolutionSize());
         InitRandomGenome(randomGenome);
 
-		population[i] = new Individual(randomGenome, evaluator.GetNumGroups(), evaluator);
+		population.push_back(new Individual(randomGenome, evaluator.GetNumGroups(), evaluator));
 	}
 }
 
@@ -50,59 +59,66 @@ void Optimizer::RunIteration() {
 		children.first.mutate(rng);
 		children.second.mutate(rng);
 
-		nextGeneration.push_back(&children.first);
+		nextGeneration.push_back(new Individual(children.first));
 
 		if(nextGeneration.size() < popSize)
-			nextGeneration.push_back(&children.second);
+			nextGeneration.push_back(new Individual(children.second));
 	}
 
+	for(int i=0; i<population.size(); i++)
+		delete population[i];
 	population = std::move(nextGeneration);
 
 	for(int i=0; i<population.size(); i++) {
 		Individual* individual = population[i];
 		double fitness = individual->getFitness();
 
-		if(fitness > currentBestFitness) {
+		if(fitness < currentBestFitness) {
 			currentBestFitness = fitness;
-			currentBest = individual;
+
+			if (currentBest != NULL) delete currentBest;
+			currentBest = new Individual(*individual);
 		}
 	}
 }
 
 Individual* Optimizer::tournamentSelection() {
-	return tournamentSelection(DEFAULT_TORUNAMENT_TURN, NULL);
-}
+    uniform_int_distribution<int> dist(0, population.size() - 1);
+    Individual* best = population[dist(rng)];
 
-Individual* Optimizer::tournamentSelection(int turnsLeft, Individual *currentParent) {
-	if(turnsLeft == 0) return currentParent;
-
-	uniform_int_distribution<int> dist(0, popSize - 1);
-    Individual* challenger = population[dist(rng)];
-
-	tournamentSelection(
-		turnsLeft-1, 
-		currentParent == NULL || challenger->getFitness() > currentParent->getFitness()
-			? challenger
-			: currentParent
-	);
+    for (int i = 0; i < DEFAULT_TORUNAMENT_TURN; i++) {
+        Individual* challenger = population[dist(rng)];
+        if (challenger->getFitness() < best->getFitness()) {
+            best = challenger;
+        }
+    }
+    return best;
 }
 
 void Optimizer::InitRandomGenome(vector<int>& individual) {
-	uniform_int_distribution<int> dist(evaluator.GetLowerBound(), evaluator.GetUpperBound());
-	for (size_t i = 0; i < individual.size(); ++i) {
-		individual[i] = dist(rng);
-	}
+	uniform_int_distribution<int> dist(0, evaluator.GetNumGroups() - 1); 
+    for (size_t i = 0; i < individual.size(); ++i) {
+        individual[i] = dist(rng);
+    }
 }
 
 void Optimizer::PrintIndivual(vector<int>& individual, double fitness) const {
-	vector<int> group_counts(evaluator.GetNumGroups(), 0);
-	for (int group : individual) {
-		group_counts[group]++;
-	}
+    cout << "Genome: [";
+    for (size_t i = 0; i < individual.size(); ++i) {
+        cout << individual[i] << (i < individual.size() - 1 ? " " : "");
+    }
+    cout << "]" << endl;
 
-	cout << "current fitness: " << fixed << setprecision(2) << fitness << ", groups: [";
-	for (size_t i = 0; i < group_counts.size(); ++i) {
-		cout << group_counts[i] << (i < group_counts.size() - 1 ? ", " : "");
-	}
-	cout << "]" << endl;
+    vector<int> group_counts(evaluator.GetNumGroups(), 0);
+    for (int group : individual) {
+        group_counts[group]++;
+    }
+
+    cout << "Stats:   fitness: " << fixed << setprecision(2) << fitness 
+			<< ", groups distribution: [";
+    for (size_t i = 0; i < group_counts.size(); ++i) {
+        cout << group_counts[i] << (i < group_counts.size() - 1 ? ", " : "");
+    }
+    cout << "]" << endl;
+    cout << "-------------------------------------------------------" << endl;
 }

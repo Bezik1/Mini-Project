@@ -12,6 +12,7 @@ namespace LcVRPContest {
     class Individual {
         public:
             Individual(vector<int> newGenome, int newNumGroups, Evaluator& newEvaluator);
+            Individual(vector<int> newGenome, int newNumGroups, double newMutProb, Evaluator& newEvaluator);
             Individual(const Individual &other);
             ~Individual();
 
@@ -28,10 +29,11 @@ namespace LcVRPContest {
             static const double MUT_PROBABILITY;
 
             Evaluator& evaluator;
-
+            
             int numCustomers;
             int numGroups;
             vector<int> genome;
+            double mutProb;
             double fitness;
             bool valid;
     };

@@ -1,43 +1,49 @@
 #include <iostream>
-
+#include "core/Optimizer/Optimizer.hpp"
 #include "core/ProblemLoader/ProblemLoader.hpp"
 #include "core/Evaluator/Evaluator.hpp"
-// #include "GeneticAlgorithm.hpp"
 
 using namespace std;
+using namespace LcVRPContest;
 
 int main() {
-    using namespace LcVRPContest;
-
-    ProblemLoader loader("data/lcvrp/Vrp-Set-A", "A-n32-k5");
+    ProblemLoader loader("Vrp-Set-A", "A-n33-k5");
     ProblemData data = loader.LoadProblem();
 
-    cout << data.GetCapacity() << endl;
+    cout << "Loaded problem: " << data.GetName() << endl;
+    cout << "Number of clients: " << data.GetNumCustomers() << endl;
 
-    vector<Coordinate> coordinate = data.GetCoordinates();
-    for(int i=0; i<coordinate.size(); i++) {
-
-    }
-
-    cout << data.GetCapacity() << endl;
-    cout << data.GetCapacity() << endl;
-    cout << data.GetCapacity() << endl;
-    cout << data.GetCapacity() << endl;
-
-
-    int numGroups = 5;
+    int numGroups = 5; 
     Evaluator evaluator(data, numGroups);
 
-    // CGeneticAlgorithm ga(100, 0.6, 0.1, &evaluator);
-    
-    // ga.Initialize();
-    
-    // for(int i = 0; i < 1000; ++i) {
-    //     ga.RunIteration();
-    // }
+    cout << evaluator.GetSolutionSize() << endl;
+    cout << evaluator.GetNumGroups() << endl;
 
-    // vector<int>* bestSolution = ga.GetCurrentBest();
-    // double bestFitness = ga.GetCurrentBestFitness();
+    int populationSize = 100;
+    Optimizer optimizer(evaluator, populationSize);
+    
+    cout << "\n=== INITALIZE OPTIMIZATION ===" << endl;
+    optimizer.Initialize();
+
+    int maxIterations = 500;
+    cout << "Starting optimization (Max " << maxIterations << " iterations)..." << endl;
+
+    for (int i = 0; i < maxIterations; ++i) {
+        optimizer.RunIteration();
+
+        if (i % 50 == 0 || i < 50) {
+            double bestF = optimizer.GetCurrentBestFitness();
+            cout << "Iteration " << i << " | Best fitness: " << bestF << endl;
+        }
+    }
+
+    Individual* best = optimizer.GetCurrentBest();
+    if (best != nullptr) {
+        cout << "\n=== FINISHED OPTIMIZATION ===" << endl;
+        cout << "Final Fitness: " << optimizer.GetCurrentBestFitness() << endl;
+        
+        optimizer.PrintIndivual(*(best->getGenome()), best->getFitness());
+    }
 
     return 0;
 }

@@ -13,16 +13,17 @@ namespace LcVRPContest {
 	public:
 		Optimizer(Evaluator& evaluator);
 		Optimizer(Evaluator& evaluator, int newPopSize);
+		~Optimizer();
 
 		void Initialize();
 		void RunIteration();
 
 		Individual* tournamentSelection();
-		Individual* tournamentSelection(int turnsLeft, Individual *currentParent);
 
 		vector<Individual*>* getPopulation();
 		Individual* GetCurrentBest() { return currentBest; }
 		double GetCurrentBestFitness() const { return currentBestFitness; }
+		void PrintIndivual(vector<int>& individual, double fitness) const;
 
 	private:
 		static const int DEFAULT_POP_SIZE;
@@ -38,6 +39,5 @@ namespace LcVRPContest {
 		mt19937 rng;
 
 		void InitRandomGenome(vector<int>& individual);
-		void PrintIndivual(vector<int>& individual, double fitness) const;
 	};
 }
