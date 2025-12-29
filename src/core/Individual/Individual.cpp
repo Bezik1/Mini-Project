@@ -7,25 +7,10 @@
 using namespace std;
 using namespace LcVRPContest;
 
-const double Individual::MUT_PROBABILITY = 0.1;
-
-
-Individual::Individual(vector<int> newGenome, int newNumGroups, double newMutProb, Evaluator &newEvaluator) 
-        : evaluator(newEvaluator),
-        genome(std::move(newGenome)) {
-    
-    mutProb = newMutProb;
-    numGroups = newNumGroups;
-    numCustomers = genome.size();
-    fitness = evaluator.Evaluate(genome);
-    valid = fitness >= 0;
-}
 
 Individual::Individual(vector<int> newGenome, int newNumGroups, Evaluator &newEvaluator) 
         : evaluator(newEvaluator),
         genome(std::move(newGenome)) {
-    
-    mutProb = MUT_PROBABILITY;
     numGroups = newNumGroups;
     numCustomers = genome.size();
     fitness = evaluator.Evaluate(genome);
@@ -71,13 +56,13 @@ pair<Individual, Individual> Individual::crossover(const Individual *other, mt19
     return { childOne, childTwo };
 }
 
-void Individual::mutate(mt19937 &rng) {
+void Individual::mutate(mt19937 &rng, double mutProb) {
     uniform_real_distribution<double> dist(0.0, 1.0);
     uniform_int_distribution<int> genes(0, numGroups - 1);
 
     for(size_t i = 0; i < numCustomers; i++) {
-        double mutProb = dist(rng);
-        if(mutProb >= MUT_PROBABILITY) continue;
+        double currentMutProb = dist(rng);
+        if(currentMutProb >= mutProb) continue;
 
         genome[i] = genes(rng);
     }

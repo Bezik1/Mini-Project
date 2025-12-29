@@ -7,28 +7,32 @@ using namespace std;
 using namespace LcVRPContest;
 
 int main() {
-    ProblemLoader loader("Vrp-Set-A", "A-n33-k5");
+    int populationSize = 1000;
+    double mutProb = 0.1;
+    int numTurns = 10;
+    int numEpochs = 1000;
+
+    int numGroups = 6;
+
+    ProblemLoader loader("Vrp-Set-A", "A-n33-k6");
     ProblemData data = loader.LoadProblem();
 
     cout << "Loaded problem: " << data.GetName() << endl;
     cout << "Number of clients: " << data.GetNumCustomers() << endl;
 
-    int numGroups = 5; 
     Evaluator evaluator(data, numGroups);
 
     cout << evaluator.GetSolutionSize() << endl;
     cout << evaluator.GetNumGroups() << endl;
 
-    int populationSize = 100;
-    Optimizer optimizer(evaluator, populationSize);
+    Optimizer optimizer(evaluator, populationSize, numTurns, mutProb);
     
     cout << "\n=== INITALIZE OPTIMIZATION ===" << endl;
     optimizer.Initialize();
 
-    int maxIterations = 500;
-    cout << "Starting optimization (Max " << maxIterations << " iterations)..." << endl;
+    cout << "Starting optimization (Max " << numEpochs << " iterations)..." << endl;
 
-    for (int i = 0; i < maxIterations; ++i) {
+    for (int i = 0; i < numEpochs; ++i) {
         optimizer.RunIteration();
 
         if (i % 50 == 0 || i < 50) {

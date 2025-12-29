@@ -5,8 +5,9 @@
 
 using namespace LcVRPContest;
 
+const double Optimizer::DEFAULT_MUT_PROB = 0.1;
 const int Optimizer::DEFAULT_POP_SIZE = 1000;
-const int Optimizer::DEFAULT_TORUNAMENT_TURN = 10;
+const int Optimizer::DEFAULT_NUM_TURNS = 10;
 
 Optimizer::Optimizer(Evaluator& evaluator) 
 	: evaluator(evaluator), 
@@ -14,15 +15,19 @@ Optimizer::Optimizer(Evaluator& evaluator)
 	currentBestFitness(numeric_limits<double>::max()) {
 	
 	currentBest = NULL;
+	numTurns = DEFAULT_NUM_TURNS;
+	mutProb = DEFAULT_MUT_PROB;
 	popSize = DEFAULT_POP_SIZE;
 }
 
-Optimizer::Optimizer(Evaluator& evaluator, int newPopSize) 
+Optimizer::Optimizer(Evaluator& evaluator, int newPopSize, int newNumTurns, double newMutProb) 
 	: evaluator(evaluator), 
 	rng(random_device{}()), 
 	currentBestFitness(numeric_limits<double>::max()) {
-	
+
 	currentBest = NULL;
+	numTurns = newNumTurns;
+	mutProb = newMutProb;
 	popSize = newPopSize;
 }
 
@@ -56,8 +61,8 @@ void Optimizer::RunIteration() {
 
 		pair<Individual, Individual> children = parentOne->crossover(parentTwo, rng);
 
-		children.first.mutate(rng);
-		children.second.mutate(rng);
+		children.first.mutate(rng, mutProb);
+		children.second.mutate(rng, mutProb);
 
 		nextGeneration.push_back(new Individual(children.first));
 
@@ -86,7 +91,7 @@ Individual* Optimizer::tournamentSelection() {
     uniform_int_distribution<int> dist(0, population.size() - 1);
     Individual* best = population[dist(rng)];
 
-    for (int i = 0; i < DEFAULT_TORUNAMENT_TURN; i++) {
+    for (int i = 0; i < DEFAULT_NUM_TURNS; i++) {
         Individual* challenger = population[dist(rng)];
         if (challenger->getFitness() < best->getFitness()) {
             best = challenger;

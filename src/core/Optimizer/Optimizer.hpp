@@ -12,7 +12,7 @@ namespace LcVRPContest {
 	class Optimizer {
 	public:
 		Optimizer(Evaluator& evaluator);
-		Optimizer(Evaluator& evaluator, int newPopSize);
+		Optimizer(Evaluator& evaluator, int newPopSize, int newNumTurns, double newMutProb);
 		~Optimizer();
 
 		void Initialize();
@@ -26,15 +26,18 @@ namespace LcVRPContest {
 		void PrintIndivual(vector<int>& individual, double fitness) const;
 
 	private:
+		static const double DEFAULT_MUT_PROB;
 		static const int DEFAULT_POP_SIZE;
-		static const int DEFAULT_TORUNAMENT_TURN;
+		static const int DEFAULT_NUM_TURNS;
 		
 		Evaluator& evaluator;
 		
 		int popSize;
+		int numTurns;
 		vector<Individual*> population;
 		Individual* currentBest;
 		double currentBestFitness;
+		double mutProb;
 
 		mt19937 rng;
 
