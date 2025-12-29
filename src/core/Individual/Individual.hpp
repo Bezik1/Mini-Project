@@ -25,7 +25,7 @@ namespace LcVRPContest {
             bool isValid() const;
             
         private:
-            static const double MUT_PROBABILITY = 0.01;
+            static const double MUT_PROBABILITY;
 
             Evaluator& evaluator;
 

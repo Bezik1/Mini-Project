@@ -2,6 +2,10 @@
 /.vscode
 /data
 
+main
+
+*/main.dSYM
+
 # Prerequisites
 *.d
 

@@ -7,6 +7,8 @@
 using namespace std;
 using namespace LcVRPContest;
 
+const double Individual::MUT_PROBABILITY = 0.01;
+
 Individual::Individual(vector<int> newGenome, int newNumGroups, Evaluator &newEvaluator) 
         : evaluator(newEvaluator) {
     
