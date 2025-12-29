@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Individual/Individual.hpp"
 #include "../Evaluator/Evaluator.hpp"
 
 #include <vector>
@@ -11,17 +12,24 @@ namespace LcVRPContest {
 	class Optimizer {
 	public:
 		Optimizer(Evaluator& evaluator);
+		Optimizer(Evaluator& evaluator, int newPopSize);
+
 		void Initialize();
 		void RunIteration();
 
-		vector<int>* GetCurrentBest() { return &current_best_; }
-		double GetCurrentBestFitness() const { return current_best_fitness_; }
+		vector<Individual*>* getPopulation();
+		Individual* GetCurrentBest() { return currentBest; }
+		double GetCurrentBestFitness() const { return currentBestFitness; }
 
 	private:
-		Evaluator& evaluator_;
-
-		vector<int> current_best_;
-		double current_best_fitness_;
+		static const int DEFAULT_POP_SIZE;
+		
+		Evaluator& evaluator;
+		
+		int popSize;
+		vector<Individual*> population;
+		Individual* currentBest;
+		double currentBestFitness;
 
 		mt19937 rng_;
 
