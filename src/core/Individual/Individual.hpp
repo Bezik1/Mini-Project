@@ -15,7 +15,7 @@ namespace LcVRPContest {
             Individual(const Individual &other);
             ~Individual();
 
-            pair<Individual, Individual> crossover(const Individual &other, mt19937 &rng);
+            pair<Individual, Individual> crossover(const Individual *other, mt19937 &rng);
             void mutate(mt19937 &rng);
             
             vector<int>* getGenome();

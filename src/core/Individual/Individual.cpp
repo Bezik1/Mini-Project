@@ -38,8 +38,8 @@ Individual::Individual(const Individual &other)
 
 Individual::~Individual() {};
 
-pair<Individual, Individual> Individual::crossover(const Individual &other, mt19937 &rng) {
-    if(!isValid() || !other.isValid()) {
+pair<Individual, Individual> Individual::crossover(const Individual *other, mt19937 &rng) {
+    if(!isValid() || !other->isValid()) {
 
     }
     
@@ -52,9 +52,9 @@ pair<Individual, Individual> Individual::crossover(const Individual &other, mt19
     for (int i = 0; i < numCustomers; i++) {
         if (i < cutPoint) {
             childOneGenome.push_back(this->genome[i]);
-            childTwoGenome.push_back(other.genome[i]);
+            childTwoGenome.push_back(other->genome[i]);
         } else {
-            childOneGenome.push_back(other.genome[i]);
+            childOneGenome.push_back(other->genome[i]);
             childTwoGenome.push_back(this->genome[i]);
         }
     }

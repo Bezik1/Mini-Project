@@ -6,10 +6,11 @@
 using namespace LcVRPContest;
 
 const int Optimizer::DEFAULT_POP_SIZE = 1000;
+const int Optimizer::DEFAULT_TORUNAMENT_TURN = 3;
 
 Optimizer::Optimizer(Evaluator& evaluator) 
 	: evaluator(evaluator), 
-	rng_(random_device{}()), 
+	rng(random_device{}()), 
 	currentBestFitness(numeric_limits<double>::max()) {
 	
 	currentBest = NULL;
@@ -18,7 +19,7 @@ Optimizer::Optimizer(Evaluator& evaluator)
 
 Optimizer::Optimizer(Evaluator& evaluator, int newPopSize) 
 	: evaluator(evaluator), 
-	rng_(random_device{}()), 
+	rng(random_device{}()), 
 	currentBestFitness(numeric_limits<double>::max()) {
 	
 	currentBest = NULL;
@@ -30,30 +31,66 @@ void Optimizer::Initialize() {
 
 	for(int i=0; i<popSize; i++) {
 		vector<int> randomGenome(evaluator.GetSolutionSize());
-        InitRandomIndividual(randomGenome);
+        InitRandomGenome(randomGenome);
 
 		population[i] = new Individual(randomGenome, evaluator.GetNumGroups(), evaluator);
 	}
 }
 
 void Optimizer::RunIteration() {
-	
-	// vector<int> new_individual(evaluator.GetSolutionSize());
-	// InitRandomIndividual(new_individual);
-	// double new_fitness = evaluator.Evaluate(new_individual);
-		
-	// if (new_fitness < currentBestFitness) {
-	// 	currentBest = new_individual;
-	// 	currentBestFitness = new_fitness;
-	// }
+	vector<Individual*> nextGeneration;
+    nextGeneration.reserve(popSize);
 
-	// PrintIndivual(new_individual, new_fitness);
+	while(nextGeneration.size() < popSize) {
+		Individual* parentOne = tournamentSelection();
+		Individual* parentTwo = tournamentSelection();
+
+		pair<Individual, Individual> children = parentOne->crossover(parentTwo, rng);
+
+		children.first.mutate(rng);
+		children.second.mutate(rng);
+
+		nextGeneration.push_back(&children.first);
+
+		if(nextGeneration.size() < popSize)
+			nextGeneration.push_back(&children.second);
+	}
+
+	population = std::move(nextGeneration);
+
+	for(int i=0; i<population.size(); i++) {
+		Individual* individual = population[i];
+		double fitness = individual->getFitness();
+
+		if(fitness > currentBestFitness) {
+			currentBestFitness = fitness;
+			currentBest = individual;
+		}
+	}
 }
 
-void Optimizer::InitRandomIndividual(vector<int>& individual) {
+Individual* Optimizer::tournamentSelection() {
+	return tournamentSelection(DEFAULT_TORUNAMENT_TURN, NULL);
+}
+
+Individual* Optimizer::tournamentSelection(int turnsLeft, Individual *currentParent) {
+	if(turnsLeft == 0) return currentParent;
+
+	uniform_int_distribution<int> dist(0, popSize - 1);
+    Individual* challenger = population[dist(rng)];
+
+	tournamentSelection(
+		turnsLeft-1, 
+		currentParent == NULL || challenger->getFitness() > currentParent->getFitness()
+			? challenger
+			: currentParent
+	);
+}
+
+void Optimizer::InitRandomGenome(vector<int>& individual) {
 	uniform_int_distribution<int> dist(evaluator.GetLowerBound(), evaluator.GetUpperBound());
 	for (size_t i = 0; i < individual.size(); ++i) {
-		individual[i] = dist(rng_);
+		individual[i] = dist(rng);
 	}
 }
 
