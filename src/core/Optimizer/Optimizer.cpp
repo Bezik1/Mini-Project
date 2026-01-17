@@ -14,7 +14,8 @@ Optimizer::Optimizer(
     int newPopSize,
     int newNumTurns,
     double newMutProb,
-    double newSurvivalRate
+    double newSurvivalRate,
+    Individual* newCurrentBest
 )  : evaluator(evaluator), 
 	rng(random_device{}()) {
     
@@ -26,80 +27,65 @@ Optimizer::Optimizer(
     population =  newPopulation;
     previousPopulation = newPrevPopulation;
 
-    currentBest = Individual();
+    currentBest = newCurrentBest;
 }
 
-Optimizer::~Optimizer() {
-    delete[] population;
-    delete[] previousPopulation;
-}
+Optimizer::~Optimizer() {}
 
-void Optimizer::Initialize() {
-    int numCustomers = evaluator.GetSolutionSize();
+void Optimizer::runIteration() {
+    std::swap(population, previousPopulation);
 
-    for(int i = 0; i < popSize; i++) {
-        vector<int> randomGenome(numCustomers);
-        InitRandomGenome(randomGenome.data(), numCustomers);
-
-        population[i] = Individual(randomGenome.data(), evaluator.GetNumGroups(), evaluator, numCustomers);
-    }
-}
-
-void Optimizer::RunIteration() {
     int numSurvivors = static_cast<int>(survivalRate * popSize);
 
-    for(int i = 0; i < popSize; i++) {
-        previousPopulation[i] = population[i];
+    for (int j = 0; j < numSurvivors; j++) {
+        std::swap(population[j], previousPopulation[j]);
     }
 
     int i = numSurvivors; 
     while(i < popSize) {
-        Individual parentOne = tournamentSelection();
-        Individual parentTwo = tournamentSelection();
+        Individual &parentOne = tournamentSelection();
+        Individual &parentTwo = tournamentSelection();
 
-        pair<Individual, Individual> children = parentOne.crossover(parentTwo, rng);
+        if (i+1 < popSize) {
+            parentOne.crossoverInPlace(parentTwo, population[i], population[i+1], rng);
+            
+            population[i].mutate(rng, mutProb);
+            population[i+1].mutate(rng, mutProb);
 
-        children.first.mutate(rng, mutProb);
-        children.second.mutate(rng, mutProb);
+            if(population[i].getFitness() < currentBest->getFitness())
+                *currentBest = population[i]; 
+            
+            if(population[i+1].getFitness() < currentBest->getFitness())
+                *currentBest = population[i+1]; 
 
-        population[i] = children.first;
-        i++;
-
-        if(i < popSize) {
-            population[i] = children.second;
+            i += 2;
+        } else {
             i++;
         }
     }
-
-    for(int j = 0; j < popSize; j++) {
-        double fitness = population[j].getFitness();
-        if(fitness < currentBest.getFitness()) {
-            currentBest = population[j];
-        }
-    }
 }
 
-Individual Optimizer::tournamentSelection() {
+Individual& Optimizer::tournamentSelection() {
     uniform_int_distribution<int> dist(0, popSize - 1);
-    Individual best = population[dist(rng)];
+    Individual *best = &previousPopulation[dist(rng)];
 
     for (int i = 0; i < numTurns; i++) {
-        Individual challenger = population[dist(rng)];
-        if (challenger.getFitness() < best.getFitness()) {
+        Individual *challenger = &previousPopulation[dist(rng)];
+        if (challenger->getFitness() < best->getFitness()) {
             best = challenger;
         }
     }
-    return best;
+    return *best;
 }
 
-void Optimizer::InitRandomGenome(int* individual, int numCustomers) {
+void Optimizer::initRandomGenome(int* individual, int numCustomers) {
     uniform_int_distribution<int> dist(0, evaluator.GetNumGroups() - 1); 
     for (int i = 0; i < numCustomers; ++i) {
         individual[i] = dist(rng);
     }
 }
 
-void Optimizer::PrintGenome(int* individual, int numCustomers) const {
+void Optimizer::printGenome(const int* individual, int numCustomers) const {
 	cout << "Genome: [";
     for (size_t i = 0; i < numCustomers; ++i) {
         cout << individual[i] << (i < numCustomers - 1 ? ", " : "");
@@ -107,8 +93,8 @@ void Optimizer::PrintGenome(int* individual, int numCustomers) const {
     cout << "]" << endl;
 }
 
-void Optimizer::PrintIndivual(int* individual, int numCustomers, double fitness) const {
-	PrintGenome(individual, numCustomers);
+void Optimizer::printIndivual(const int* individual, int numCustomers, double fitness) const {
+	printGenome(individual, numCustomers);
 
     vector<int> group_counts(evaluator.GetNumGroups(), 0);
     for (int i=0; i<numCustomers; i++) {

@@ -20,43 +20,43 @@ namespace LcVRPContest {
 			ProblemData(const ProblemData &other);
 
 			// getters
-			string GetName() const { return name_; }
-			int GetDimension() const { return dimension_; }
-			int GetCapacity() const { return capacity_; }
-			double GetDistance() const { return distance_; }
-			bool HasDistanceConstraint() const { return has_distance_constraint_; }
-			string GetEdgeWeightType() const { return edge_weight_type_; }
-			int GetDepot() const { return depot_; }
-			int GetNumCustomers() const { return dimension_ - 1; } // dimension includes depot
+			string getName() const { return name_; }
+			int getDimension() const { return dimension_; }
+			int getCapacity() const { return capacity_; }
+			double getDistance() const { return distance_; }
+			bool hasDistanceConstraint() const { return has_distance_constraint_; }
+			string getEdgeWeightType() const { return edge_weight_type_; }
+			int getDepot() const { return depot_; }
+			int getNumCustomers() const { return dimension_ - 1; }
 			
-			const vector<Coordinate>& GetCoordinates() const { return coordinates_; }
-			const vector<int>& GetDemands() const { return demands_; }
-			const vector<int>& GetPermutation() const { return permutation_; }
-			const vector<vector<double>>& GetEdgeWeights() const { return edge_weights_; }
+			const vector<Coordinate>& getCoordinates() const { return coordinates_; }
+			const vector<int>& getDemands() const { return demands_; }
+			const vector<int>& getPermutation() const { return permutation_; }
+			const vector<vector<double>>& getEdgeWeights() const { return edge_weights_; }
 
 			// setters
-			void SetName(const string& name) { name_ = name; }
-			void SetDimension(int dimension) { 
+			void setName(const string& name) { name_ = name; }
+			void setDimension(int dimension) { 
 				dimension_ = dimension;
 				coordinates_.resize(dimension);
 				demands_.resize(dimension);
 			}
-			void SetCapacity(int capacity) { capacity_ = capacity; }
-			void SetDistance(double distance) { 
+			void setCapacity(int capacity) { capacity_ = capacity; }
+			void setDistance(double distance) { 
 				distance_ = distance; 
 				has_distance_constraint_ = true;
 			}
-			void SetEdgeWeightType(const string& type) { edge_weight_type_ = type; }
-			void SetDepot(int depot) { depot_ = depot; }
+			void setEdgeWeightType(const string& type) { edge_weight_type_ = type; }
+			void setDepot(int depot) { depot_ = depot; }
 			
-			void SetCoordinates(const vector<Coordinate>& coordinates) { coordinates_ = coordinates; }
-			void SetDemands(const vector<int>& demands) { demands_ = demands; }
-			void SetPermutation(const vector<int>& permutation) { permutation_ = permutation; }
-			void SetEdgeWeights(const vector<vector<double>>& edge_weights) { edge_weights_ = edge_weights; }
+			void setCoordinates(const vector<Coordinate>& coordinates) { coordinates_ = coordinates; }
+			void setDemands(const vector<int>& demands) { demands_ = demands; }
+			void setPermutation(const vector<int>& permutation) { permutation_ = permutation; }
+			void setEdgeWeights(const vector<vector<double>>& edge_weights) { edge_weights_ = edge_weights; }
 
 		// utility methods
-		double CalculateDistance(int i, int j) const;
-		void BuildEdgeWeightMatrix();
+		double calculateDistance(int i, int j) const;
+		void buildEdgeWeightMatrix();
 
 		static constexpr double WRONG_VAL = -1.0;
 

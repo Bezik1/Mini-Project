@@ -19,7 +19,7 @@ GeneticAlgorithm::GeneticAlgorithm(int newPopSize, int newNumTurns, double newMu
     population = new Individual[popSize];
     previousPopulation = new Individual[popSize];
 
-    currentBest = Individual();
+    currentBest = population[0];
     
     evaluator = new Evaluator(numGroups);
     optimizer = new Optimizer(
@@ -29,7 +29,8 @@ GeneticAlgorithm::GeneticAlgorithm(int newPopSize, int newNumTurns, double newMu
         popSize,
         numTurns,
         newMutProb,
-        survivalRate
+        survivalRate,
+        &currentBest
     );
 }
 
@@ -42,19 +43,30 @@ GeneticAlgorithm::~GeneticAlgorithm() {
 }
 
 void GeneticAlgorithm::Initialize() {
-    optimizer->Initialize();
+    int numCustomers = evaluator->GetSolutionSize();
+
+    for(int i = 0; i < popSize; i++) {
+        int* randomGenome = new int[numCustomers];
+        InitRandomGenome(randomGenome, numCustomers);
+
+        population[i] = Individual(randomGenome, evaluator->GetNumGroups(), *evaluator, numCustomers);
+        previousPopulation[i] = population[i];
+    }
 }
 
 void GeneticAlgorithm::RunLoop() {
     for (int i = 0; i < numEpochs; i++) {
-        optimizer->RunIteration();
+        optimizer->runIteration();
 
         if (i % 2 == 0) {
-            Individual best = optimizer->GetCurrentBest();
-            double bestFitness = best.getFitness();
+            double bestFitness = currentBest.getFitness();
             cout << "Iteration " << i << " | Best fitness: " << bestFitness << endl;
 
-            optimizer->PrintIndivual(best.getGenome(), best.getNumCustomers(), best.getFitness());
+            optimizer->printIndivual(
+                currentBest.getGenome(),
+                currentBest.getNumCustomers(),
+                currentBest.getFitness()
+            );
         }
     }
 }

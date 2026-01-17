@@ -22,7 +22,7 @@ ProblemData::ProblemData(const ProblemData &other)
     permutation_(other.permutation_),
     edge_weights_(other.edge_weights_) {}
 
-double ProblemData::CalculateDistance(int i, int j) const {
+double ProblemData::calculateDistance(int i, int j) const {
     if (i < 0 || i >= dimension_ || j < 0 || j >= dimension_) {
         return WRONG_VAL;
     }
@@ -50,7 +50,7 @@ double ProblemData::CalculateDistance(int i, int j) const {
     return WRONG_VAL;
 }
 
-void ProblemData::BuildEdgeWeightMatrix() {
+void ProblemData::buildEdgeWeightMatrix() {
     if (edge_weight_type_ == "EUC_2D") {
         if (coordinates_.size() != static_cast<size_t>(dimension_)) {
             return;

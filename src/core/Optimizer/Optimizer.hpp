@@ -18,19 +18,18 @@ namespace LcVRPContest {
                 int newPopSize,
                 int newNumTurns,
                 double newMutProb,
-                double newSurvivalRate
+                double newSurvivalRate,
+                Individual* newCurrentBest
             );
 			~Optimizer();
 
-			void Initialize();
-			void RunIteration();
+			void runIteration();
 
-			Individual tournamentSelection();
+			Individual& tournamentSelection();
 
 			vector<Individual*>* getPopulation();
-			Individual GetCurrentBest() { return currentBest; }
-			void PrintIndivual(int* individual, int numCustomers, double fitness) const;
-			void PrintGenome(int* individual, int numCustomers) const;
+			void printIndivual(const int* individual, int numCustomers, double fitness) const;
+			void printGenome(const int* individual, int numCustomers) const;
 
 		private:			
 			Evaluator& evaluator;
@@ -42,10 +41,10 @@ namespace LcVRPContest {
 
 			Individual* population;
 			Individual* previousPopulation;
-			Individual currentBest;
+			Individual* currentBest;
 
 			mt19937 rng;
 
-			void InitRandomGenome(int* individual, int numCustomers);
+			void initRandomGenome(int* individual, int numCustomers);
 	};
 }
