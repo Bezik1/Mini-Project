@@ -79,7 +79,7 @@ Individual& Optimizer::tournamentSelection() {
 }
 
 void Optimizer::initRandomGenome(int* individual, int numCustomers) {
-    uniform_int_distribution<int> dist(0, evaluator.GetNumGroups() - 1); 
+    uniform_int_distribution<int> dist(0, evaluator.getNumGroups() - 1); 
     for (int i = 0; i < numCustomers; ++i) {
         individual[i] = dist(rng);
     }
@@ -96,7 +96,7 @@ void Optimizer::printGenome(const int* individual, int numCustomers) const {
 void Optimizer::printIndivual(const int* individual, int numCustomers, double fitness) const {
 	printGenome(individual, numCustomers);
 
-    vector<int> group_counts(evaluator.GetNumGroups(), 0);
+    vector<int> group_counts(evaluator.getNumGroups(), 0);
     for (int i=0; i<numCustomers; i++) {
         int group = individual[i];
         group_counts[group]++;

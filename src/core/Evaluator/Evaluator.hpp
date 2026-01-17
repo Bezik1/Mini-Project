@@ -11,8 +11,6 @@ namespace LcVRPContest {
 	public:
 		Evaluator(int numGroups, string folderName, string instanceName);
 		
-		double Evaluate(const vector<int>* solution);
-		double Evaluate(const vector<int>& solution);
 		double Evaluate(const int* solution);
 
 		int getSolutionSize() const { return numCustomers; }

@@ -39,21 +39,6 @@ Individual& Individual::operator=(Individual&& other) {
     return *this;
 }
 
-
-Individual::Individual(const Individual &other)
-    : evaluator(other.evaluator), numCustomers(other.numCustomers), 
-    numGroups(other.numGroups), fitness(other.fitness) {
-    
-    if (other.genome != NULL) {
-        genome = new int[numCustomers];
-        for(int i = 0; i < numCustomers; i++) {
-            genome[i] = other.genome[i];
-        }
-    } else {
-        genome = NULL;
-    }
-}
-
 Individual& Individual::operator=(const Individual& other) {
     if (this != &other) {
         if(genome != NULL) delete[] genome;

@@ -17,6 +17,8 @@ int main() {
     string instanceName = "X-n209-k16";
 
     GeneticAlgorithm geneticAlgorithm(
+        folderName,
+        instanceName,
         populationSize,
         numTurns,
         mutProb,
@@ -25,8 +27,8 @@ int main() {
         numEpochs
     );
 
-    geneticAlgorithm.Initialize();
-    geneticAlgorithm.RunLoop();
+    geneticAlgorithm.initialize();
+    geneticAlgorithm.runLoop();
 
     return 0;
 }

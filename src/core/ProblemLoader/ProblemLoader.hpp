@@ -6,21 +6,21 @@
 using namespace std;
 
 namespace LcVRPContest {
-	class ProblemLoader {
-	public:
-		ProblemLoader(const string& folderName, const string& instanceName);
+    class ProblemLoader {
+    public:
+        ProblemLoader(const string& folderName, const string& instanceName);
 
-		ProblemData LoadProblem();
+        ProblemData loadProblem();
 
-	private:
-		string folderName;
-		string instanceName;
-		string basePath;
+    private:
+        string folderName;
+        string instanceName;
+        string basePath;
 
-		void parseLcVrpFile(const string& file_path, ProblemData& problem_data);
-		void parseEdgeWeightSection(ifstream& file, ProblemData& problem_data);
-		void parseNodeCoordSection(ifstream& file, ProblemData& problem_data);
-		void parseDemandSection(ifstream& file, ProblemData& problem_data);
-		void parseDepotSection(ifstream& file, ProblemData& problem_data);
-	};
+        void parseLcVrpFile(const string& filePath, ProblemData& problemData);
+        void parseEdgeWeightSection(ifstream& file, ProblemData& problemData);
+        void parseNodeCoordSection(ifstream& file, ProblemData& problemData);
+        void parseDemandSection(ifstream& file, ProblemData& problemData);
+        void parseDepotSection(ifstream& file, ProblemData& problemData);
+    };
 }

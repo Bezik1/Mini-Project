@@ -13,6 +13,8 @@ namespace LcVRPContest {
 	class GeneticAlgorithm {
 		public:
 			GeneticAlgorithm(
+				string folderName,
+				string instnaceName,
 				int newPopSize,
 				int newNumTurns,
 				double newMutProb,
@@ -22,8 +24,8 @@ namespace LcVRPContest {
 			);
 			~GeneticAlgorithm();
 
-			void Initialize();
-			void RunLoop();
+			void initialize();
+			void runLoop();
 
 		private:			
 			Evaluator* evaluator;
@@ -41,6 +43,6 @@ namespace LcVRPContest {
 
 			mt19937 rng;
 
-			void InitRandomGenome(int* individual, int numCustomers);
+			void initRandomGenome(int* individual, int numCustomers);
 	};
 }

@@ -7,7 +7,16 @@
 
 using namespace LcVRPContest;
 
-GeneticAlgorithm::GeneticAlgorithm(int newPopSize, int newNumTurns, double newMutProb, double newSurvivalRate, int numGroups, int newNumEpochs) 
+GeneticAlgorithm::GeneticAlgorithm(
+    string folderName,
+    string instanceName,
+    int newPopSize,
+    int newNumTurns,
+    double newMutProb,
+    double newSurvivalRate,
+    int numGroups,
+    int newNumEpochs
+) 
     : rng(random_device{}()) {
     
     survivalRate = newSurvivalRate;
@@ -19,9 +28,9 @@ GeneticAlgorithm::GeneticAlgorithm(int newPopSize, int newNumTurns, double newMu
     population = new Individual[popSize];
     previousPopulation = new Individual[popSize];
 
-    currentBest = population[0];
+    currentBest = Individual();
     
-    evaluator = new Evaluator(numGroups);
+    evaluator = new Evaluator(numGroups, folderName, instanceName);
     optimizer = new Optimizer(
         *evaluator,
         population,
@@ -42,19 +51,22 @@ GeneticAlgorithm::~GeneticAlgorithm() {
     delete optimizer;
 }
 
-void GeneticAlgorithm::Initialize() {
-    int numCustomers = evaluator->GetSolutionSize();
+void GeneticAlgorithm::initialize() {
+    int numCustomers = evaluator->getSolutionSize();
 
     for(int i = 0; i < popSize; i++) {
         int* randomGenome = new int[numCustomers];
-        InitRandomGenome(randomGenome, numCustomers);
+        initRandomGenome(randomGenome, numCustomers);
 
-        population[i] = Individual(randomGenome, evaluator->GetNumGroups(), *evaluator, numCustomers);
-        previousPopulation[i] = population[i];
+        population[i] = Individual(randomGenome, evaluator->getNumGroups(), *evaluator, numCustomers);
+        previousPopulation[i] = Individual(randomGenome, evaluator->getNumGroups(), *evaluator, numCustomers);
+
+        delete[] randomGenome;
     }
+    currentBest = population[0];
 }
 
-void GeneticAlgorithm::RunLoop() {
+void GeneticAlgorithm::runLoop() {
     for (int i = 0; i < numEpochs; i++) {
         optimizer->runIteration();
 
@@ -71,8 +83,8 @@ void GeneticAlgorithm::RunLoop() {
     }
 }
 
-void GeneticAlgorithm::InitRandomGenome(int* individual, int numCustomers) {
-    uniform_int_distribution<int> dist(0, evaluator->GetNumGroups() - 1); 
+void GeneticAlgorithm::initRandomGenome(int* individual, int numCustomers) {
+    uniform_int_distribution<int> dist(0, evaluator->getNumGroups() - 1); 
     for (int i = 0; i < numCustomers; ++i) {
         individual[i] = dist(rng);
     }

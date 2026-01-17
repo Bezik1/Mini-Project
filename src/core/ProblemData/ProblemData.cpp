@@ -3,71 +3,39 @@
 using namespace LcVRPContest;
 
 ProblemData::ProblemData()
-	: dimension_(0),
-        capacity_(0),
-        distance_(0.0),
-        has_distance_constraint_(false),
-        depot_(1) {}
+    : dimension(0), capacity(0), distance(0.0), 
+    hasDistanceConstraintVal(false), depot(1) {}
 
-ProblemData::ProblemData(const ProblemData &other) 
-    : name_(other.name_),
-    dimension_(other.dimension_),
-    capacity_(other.capacity_),
-    distance_(other.distance_),
-    has_distance_constraint_(other.has_distance_constraint_),
-    edge_weight_type_(other.edge_weight_type_),
-    depot_(other.depot_),
-    coordinates_(other.coordinates_),
-    demands_(other.demands_),
-    permutation_(other.permutation_),
-    edge_weights_(other.edge_weights_) {}
+ProblemData::ProblemData(const ProblemData& other) 
+    : name(other.name), dimension(other.dimension), capacity(other.capacity),
+    distance(other.distance), hasDistanceConstraintVal(other.hasDistanceConstraintVal),
+    edgeWeightType(other.edgeWeightType), depot(other.depot),
+    coordinates(other.coordinates), demands(other.demands),
+    permutation(other.permutation), edgeWeights(other.edgeWeights) {}
 
 double ProblemData::calculateDistance(int i, int j) const {
-    if (i < 0 || i >= dimension_ || j < 0 || j >= dimension_) {
-        return WRONG_VAL;
-    }
+    if (i < 0 || i >= dimension || j < 0 || j >= dimension) return WRONG_VAL;
     if (i == j) return 0.0;
     
-    if (edge_weight_type_ == "EUC_2D") {
-        if (coordinates_.size() != static_cast<size_t>(dimension_)) {
-            return WRONG_VAL;
-        }
-        double dx = coordinates_[i].x - coordinates_[j].x;
-        double dy = coordinates_[i].y - coordinates_[j].y;
+    if (edgeWeightType == "EUC_2D") {
+        double dx = coordinates[i].x - coordinates[j].x;
+        double dy = coordinates[i].y - coordinates[j].y;
         return sqrt(dx * dx + dy * dy);
-    }
-    else if (edge_weight_type_ == "EXPLICIT") {
-        if (edge_weights_.empty() || i >= (int)edge_weights_.size() || j >= (int)edge_weights_[i].size()) {
-            return WRONG_VAL;
-        }
-        if (i > j) {
-            return edge_weights_[i][j];
-        }
-        else {
-            return edge_weights_[j][i];
-        }
+    } 
+    else if (edgeWeightType == "EXPLICIT") {
+        if (edgeWeights.empty()) return WRONG_VAL;
+        // Obsługa macierzy trójkątnej symetrycznej
+        return (i > j) ? edgeWeights[i][j] : edgeWeights[j][i];
     }
     return WRONG_VAL;
 }
 
 void ProblemData::buildEdgeWeightMatrix() {
-    if (edge_weight_type_ == "EUC_2D") {
-        if (coordinates_.size() != static_cast<size_t>(dimension_)) {
-            return;
-        }
-        
-        edge_weights_.resize(dimension_);
-        for (int i = 0; i < dimension_; ++i) {
-            edge_weights_[i].resize(dimension_);
-            for (int j = 0; j < dimension_; ++j) {
-                if (i == j) {
-                    edge_weights_[i][j] = 0.0;
-                }
-                else {
-                    double dx = coordinates_[i].x - coordinates_[j].x;
-                    double dy = coordinates_[i].y - coordinates_[j].y;
-                    edge_weights_[i][j] = sqrt(dx * dx + dy * dy);
-                }
+    if (edgeWeightType == "EUC_2D") {
+        edgeWeights.assign(dimension, vector<double>(dimension, 0.0));
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                edgeWeights[i][j] = calculateDistance(i, j);
             }
         }
     }
