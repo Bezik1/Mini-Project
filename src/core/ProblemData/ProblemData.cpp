@@ -9,6 +9,19 @@ ProblemData::ProblemData()
         has_distance_constraint_(false),
         depot_(1) {}
 
+ProblemData::ProblemData(const ProblemData &other) 
+    : name_(other.name_),
+    dimension_(other.dimension_),
+    capacity_(other.capacity_),
+    distance_(other.distance_),
+    has_distance_constraint_(other.has_distance_constraint_),
+    edge_weight_type_(other.edge_weight_type_),
+    depot_(other.depot_),
+    coordinates_(other.coordinates_),
+    demands_(other.demands_),
+    permutation_(other.permutation_),
+    edge_weights_(other.edge_weights_) {}
+
 double ProblemData::CalculateDistance(int i, int j) const {
     if (i < 0 || i >= dimension_ || j < 0 || j >= dimension_) {
         return WRONG_VAL;

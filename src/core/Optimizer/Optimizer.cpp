@@ -1,127 +1,122 @@
 #include "Optimizer.hpp"
+#include "../Individual/Individual.hpp"
+
 #include <iostream>
 #include <limits>
 #include <iomanip>
 
 using namespace LcVRPContest;
 
-const double Optimizer::DEFAULT_MUT_PROB = 0.1;
-const int Optimizer::DEFAULT_POP_SIZE = 1000;
-const int Optimizer::DEFAULT_NUM_TURNS = 10;
-
-Optimizer::Optimizer(Evaluator& evaluator) 
-	: evaluator(evaluator), 
-	rng(random_device{}()), 
-	currentBestFitness(numeric_limits<double>::max()) {
-	
-	currentBest = NULL;
-	numTurns = DEFAULT_NUM_TURNS;
-	mutProb = DEFAULT_MUT_PROB;
-	popSize = DEFAULT_POP_SIZE;
-}
-
-Optimizer::Optimizer(Evaluator& evaluator, int newPopSize, int newNumTurns, double newMutProb) 
-	: evaluator(evaluator), 
-	rng(random_device{}()), 
-	currentBestFitness(numeric_limits<double>::max()) {
-
-	currentBest = NULL;
+Optimizer::Optimizer(
+    Evaluator& evaluator,
+    Individual* newPopulation,
+    Individual* newPrevPopulation,
+    int newPopSize,
+    int newNumTurns,
+    double newMutProb,
+    double newSurvivalRate
+)  : evaluator(evaluator), 
+	rng(random_device{}()) {
+    
+    survivalRate = newSurvivalRate;
 	numTurns = newNumTurns;
 	mutProb = newMutProb;
 	popSize = newPopSize;
+
+    population =  newPopulation;
+    previousPopulation = newPrevPopulation;
+
+    currentBest = Individual();
 }
 
 Optimizer::~Optimizer() {
-	for(int i=0; i<population.size(); i++)
-		delete population[i];
-
-	if(currentBest != NULL) delete currentBest;
+    delete[] population;
+    delete[] previousPopulation;
 }
 
 void Optimizer::Initialize() {
-	for(int i=0; i<population.size(); i++)
-		delete population[i];
-	population.clear();
+    int numCustomers = evaluator.GetSolutionSize();
 
-	for(int i=0; i<popSize; i++) {
-		vector<int> randomGenome(evaluator.GetSolutionSize());
-        InitRandomGenome(randomGenome);
+    for(int i = 0; i < popSize; i++) {
+        vector<int> randomGenome(numCustomers);
+        InitRandomGenome(randomGenome.data(), numCustomers);
 
-		population.push_back(new Individual(randomGenome, evaluator.GetNumGroups(), evaluator));
-	}
+        population[i] = Individual(randomGenome.data(), evaluator.GetNumGroups(), evaluator, numCustomers);
+    }
 }
 
 void Optimizer::RunIteration() {
-	vector<Individual*> nextGeneration;
-    nextGeneration.reserve(popSize);
+    int numSurvivors = static_cast<int>(survivalRate * popSize);
 
-	while(nextGeneration.size() < popSize) {
-		Individual* parentOne = tournamentSelection();
-		Individual* parentTwo = tournamentSelection();
+    for(int i = 0; i < popSize; i++) {
+        previousPopulation[i] = population[i];
+    }
 
-		pair<Individual, Individual> children = parentOne->crossover(parentTwo, rng);
+    int i = numSurvivors; 
+    while(i < popSize) {
+        Individual parentOne = tournamentSelection();
+        Individual parentTwo = tournamentSelection();
 
-		children.first.mutate(rng, mutProb);
-		children.second.mutate(rng, mutProb);
+        pair<Individual, Individual> children = parentOne.crossover(parentTwo, rng);
 
-		nextGeneration.push_back(new Individual(children.first));
+        children.first.mutate(rng, mutProb);
+        children.second.mutate(rng, mutProb);
 
-		if(nextGeneration.size() < popSize)
-			nextGeneration.push_back(new Individual(children.second));
-	}
+        population[i] = children.first;
+        i++;
 
-	for(int i=0; i<population.size(); i++)
-		delete population[i];
-	population = std::move(nextGeneration);
+        if(i < popSize) {
+            population[i] = children.second;
+            i++;
+        }
+    }
 
-	for(int i=0; i<population.size(); i++) {
-		Individual* individual = population[i];
-		double fitness = individual->getFitness();
-
-		if(fitness < currentBestFitness) {
-			currentBestFitness = fitness;
-
-			if (currentBest != NULL) delete currentBest;
-			currentBest = new Individual(*individual);
-		}
-	}
+    for(int j = 0; j < popSize; j++) {
+        double fitness = population[j].getFitness();
+        if(fitness < currentBest.getFitness()) {
+            currentBest = population[j];
+        }
+    }
 }
 
-Individual* Optimizer::tournamentSelection() {
-    uniform_int_distribution<int> dist(0, population.size() - 1);
-    Individual* best = population[dist(rng)];
+Individual Optimizer::tournamentSelection() {
+    uniform_int_distribution<int> dist(0, popSize - 1);
+    Individual best = population[dist(rng)];
 
-    for (int i = 0; i < DEFAULT_NUM_TURNS; i++) {
-        Individual* challenger = population[dist(rng)];
-        if (challenger->getFitness() < best->getFitness()) {
+    for (int i = 0; i < numTurns; i++) {
+        Individual challenger = population[dist(rng)];
+        if (challenger.getFitness() < best.getFitness()) {
             best = challenger;
         }
     }
     return best;
 }
 
-void Optimizer::InitRandomGenome(vector<int>& individual) {
-	uniform_int_distribution<int> dist(0, evaluator.GetNumGroups() - 1); 
-    for (size_t i = 0; i < individual.size(); ++i) {
+void Optimizer::InitRandomGenome(int* individual, int numCustomers) {
+    uniform_int_distribution<int> dist(0, evaluator.GetNumGroups() - 1); 
+    for (int i = 0; i < numCustomers; ++i) {
         individual[i] = dist(rng);
     }
 }
 
-void Optimizer::PrintGenome(vector<int>& individual) const {
+void Optimizer::PrintGenome(int* individual, int numCustomers) const {
 	cout << "Genome: [";
-    for (size_t i = 0; i < individual.size(); ++i) {
-        cout << individual[i] << (i < individual.size() - 1 ? " " : "");
+    for (size_t i = 0; i < numCustomers; ++i) {
+        cout << individual[i] << (i < numCustomers - 1 ? ", " : "");
     }
     cout << "]" << endl;
 }
 
-void Optimizer::PrintIndivual(vector<int>& individual, double fitness) const {
+void Optimizer::PrintIndivual(int* individual, int numCustomers, double fitness) const {
+	PrintGenome(individual, numCustomers);
+
     vector<int> group_counts(evaluator.GetNumGroups(), 0);
-    for (int group : individual) {
+    for (int i=0; i<numCustomers; i++) {
+        int group = individual[i];
         group_counts[group]++;
     }
 
-    cout << "Stats:   fitness: " << fixed << setprecision(2) << fitness 
+    cout << "Stats:   fitness: " << fixed << setprecision(5) << fitness 
 			<< ", groups distribution: [";
     for (size_t i = 0; i < group_counts.size(); ++i) {
         cout << group_counts[i] << (i < group_counts.size() - 1 ? ", " : "");

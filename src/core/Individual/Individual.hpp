@@ -3,34 +3,32 @@
 #include <iostream>
 #include <vector>
 #include <random>
-
 #include "../Evaluator/Evaluator.hpp"
-
-using namespace std;
 
 namespace LcVRPContest {
     class Individual {
         public:
-            Individual(vector<int> newGenome, int newNumGroups, Evaluator& newEvaluator);
+            Individual() : evaluator(NULL), numCustomers(0), numGroups(0), genome(NULL), fitness(1e18) {}
+
+            Individual(int newGenome[], int newNumGroups, Evaluator& newEvaluator, int genomeSize);
             Individual(const Individual &other);
             ~Individual();
 
-            pair<Individual, Individual> crossover(const Individual *other, mt19937 &rng);
+            Individual& operator=(const Individual& other);
+
+            pair<Individual, Individual> crossover(const Individual& other, mt19937 &rng) const;
             void mutate(mt19937 &rng, double mutProb);
             
-            vector<int>* getGenome();
+            int* getGenome() const;
             double getFitness() const;
             int getNumGroups() const;
             int getNumCustomers() const;
-            bool isValid() const;
             
         private:
-            Evaluator& evaluator;
-            
+            Evaluator* evaluator;
             int numCustomers;
             int numGroups;
-            vector<int> genome;
+            int* genome;
             double fitness;
-            bool valid;
     };
 }

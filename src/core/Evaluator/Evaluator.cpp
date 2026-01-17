@@ -1,30 +1,35 @@
 #include "../Evaluator/Evaluator.hpp"
 #include "../ProblemData/ProblemData.hpp"
+#include "../ProblemLoader/ProblemLoader.hpp"
 #include <algorithm>
 #include <numeric>
+#include "iostream"
 
 using namespace LcVRPContest;
 
-Evaluator::Evaluator(const ProblemData& problem_data, int num_groups)
-	: problem_data_(problem_data), 
-		num_groups_(num_groups), 
-		num_customers_(problem_data.GetNumCustomers()) {}
+Evaluator::Evaluator(int numGroups)
+    : numGroups_(numGroups) {
+	ProblemLoader loader("Vrp-Set-X", "X-n209-k16");
+	problemData = ProblemData(loader.LoadProblem());
+	num_customers_ = problemData.GetNumCustomers();
 
-double Evaluator::Evaluate(const vector<int>* solution) const {
+}
+
+double Evaluator::Evaluate(const vector<int>* solution) {
 	if (!solution) {
 		return WRONG_VAL;
 	}
 	return Evaluate(*solution);
 }
 
-double Evaluator::Evaluate(const vector<int>& solution) const {
+double Evaluator::Evaluate(const vector<int>& solution) {
 	if (solution.size() != static_cast<size_t>(GetSolutionSize())) {
 		return WRONG_VAL;
 	}
 	return Evaluate(solution.data());
 }
 
-double Evaluator::Evaluate(const int* solution) const {
+double Evaluator::Evaluate(const int* solution) {
 	if (!ValidateConstraints()) {
 		return WRONG_VAL;
 	}
@@ -64,13 +69,13 @@ bool Evaluator::IsValidSolution(const vector<int>& grouping) const {
 }
 
 bool Evaluator::ValidateConstraints() const {
-	int depot = problem_data_.GetDepot();
+	int depot = problemData.GetDepot();
 	int depot_index = depot - 1; //again, depot index in 0-based
-	const vector<int>& demands = problem_data_.GetDemands();
-	int capacity = problem_data_.GetCapacity();
+	const vector<int>& demands = problemData.GetDemands();
+	int capacity = problemData.GetCapacity();
 	
 	// check each customer
-	for (int customer_id = 2; customer_id <= problem_data_.GetDimension(); ++customer_id) {
+	for (int customer_id = 2; customer_id <= problemData.GetDimension(); ++customer_id) {
 		int customer_index = customer_id - 1;
 		
 		// check if any customer has demand > capacity
@@ -79,9 +84,9 @@ bool Evaluator::ValidateConstraints() const {
 		}
 
 		// check if distance constraint exists
-		if (problem_data_.HasDistanceConstraint()) {
-			double max_distance = problem_data_.GetDistance();
-			double dist_to_depot = problem_data_.CalculateDistance(depot_index, customer_index);
+		if (problemData.HasDistanceConstraint()) {
+			double max_distance = problemData.GetDistance();
+			double dist_to_depot = problemData.CalculateDistance(depot_index, customer_index);
 			
 			if (dist_to_depot < 0.0) {
 				return false;
@@ -100,9 +105,9 @@ bool Evaluator::ValidateConstraints() const {
 
 void Evaluator::BuildRoutes(const vector<int>& grouping, vector<vector<int>>& routes) const {
 	routes.clear();
-	routes.resize(num_groups_);
+	routes.resize(numGroups_);
 
-	const vector<int>& permutation = problem_data_.GetPermutation();
+	const vector<int>& permutation = problemData.GetPermutation();
 
 	// distribute customers using permutation and grouping
 	// permutation contains customer ids from 2 to dimension (1 is depo)
@@ -126,11 +131,11 @@ double Evaluator::CalculateRouteCost(const vector<int>& route) const {
 	}
 
 	double total_cost = 0.0;
-	int depot = problem_data_.GetDepot();
+	int depot = problemData.GetDepot();
 	int depot_index = depot - 1; // depot index in 0-based for easier calculations
-	int capacity = problem_data_.GetCapacity();
-	double max_distance = problem_data_.HasDistanceConstraint() ? problem_data_.GetDistance() : -1.0;
-	const vector<int>& demands = problem_data_.GetDemands();
+	int capacity = problemData.GetCapacity();
+	double max_distance = problemData.HasDistanceConstraint() ? problemData.GetDistance() : -1.0;
+	const vector<int>& demands = problemData.GetDemands();
 
 	int current_load = 0;
 	double current_distance = 0.0;
@@ -144,7 +149,7 @@ double Evaluator::CalculateRouteCost(const vector<int>& route) const {
 		// we check if adding this new customer would exceed CAPACITY constraint
 		if (current_load + customer_demand > capacity) {
 			// return to depot, close current subtour
-			double dist_to_depot = problem_data_.CalculateDistance(last_position_index, depot_index);
+			double dist_to_depot = problemData.CalculateDistance(last_position_index, depot_index);
 			if (dist_to_depot < 0.0) return WRONG_VAL;
 			
 			current_distance += dist_to_depot;
@@ -157,18 +162,18 @@ double Evaluator::CalculateRouteCost(const vector<int>& route) const {
 		}
 
 		// calculate distance to the next customer
-		double dist_to_customer = problem_data_.CalculateDistance(last_position_index, customer_index);
+		double dist_to_customer = problemData.CalculateDistance(last_position_index, customer_index);
 		if (dist_to_customer < 0.0) return WRONG_VAL;
 
 		// check if adding this customer would exceed DISTANCE constraint
 		if (max_distance > 0.0) {
-			double dist_back_to_depot = problem_data_.CalculateDistance(customer_index, depot_index);
+			double dist_back_to_depot = problemData.CalculateDistance(customer_index, depot_index);
 			if (dist_back_to_depot < 0.0) return WRONG_VAL;
 
 			// would this customer + return to depot exceed max_distance?
 			if (current_distance + dist_to_customer + dist_back_to_depot > max_distance) {
 				// close current subtour and start new one
-				double dist_to_depot = problem_data_.CalculateDistance(last_position_index, depot_index);
+				double dist_to_depot = problemData.CalculateDistance(last_position_index, depot_index);
 				if (dist_to_depot < 0.0) return WRONG_VAL;
 				
 				current_distance += dist_to_depot;
@@ -180,7 +185,7 @@ double Evaluator::CalculateRouteCost(const vector<int>& route) const {
 				last_position_index = depot_index;
 
 				// recalculate distance to customer from depot
-				dist_to_customer = problem_data_.CalculateDistance(depot_index, customer_index);
+				dist_to_customer = problemData.CalculateDistance(depot_index, customer_index);
 				if (dist_to_customer < 0.0) return WRONG_VAL;
 			}
 		}
@@ -192,7 +197,7 @@ double Evaluator::CalculateRouteCost(const vector<int>& route) const {
 	}
 
 	// close final subtour and return to depot
-	double dist_to_depot = problem_data_.CalculateDistance(last_position_index, depot_index);
+	double dist_to_depot = problemData.CalculateDistance(last_position_index, depot_index);
 	if (dist_to_depot < 0.0) return WRONG_VAL;
 	
 	current_distance += dist_to_depot;

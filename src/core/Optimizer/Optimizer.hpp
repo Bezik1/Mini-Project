@@ -10,38 +10,42 @@ using namespace std;
 
 namespace LcVRPContest {
 	class Optimizer {
-	public:
-		Optimizer(Evaluator& evaluator);
-		Optimizer(Evaluator& evaluator, int newPopSize, int newNumTurns, double newMutProb);
-		~Optimizer();
+		public:
+			Optimizer(
+                Evaluator& evaluator,
+                Individual* newPopulation,
+                Individual* newPrevPopulation,
+                int newPopSize,
+                int newNumTurns,
+                double newMutProb,
+                double newSurvivalRate
+            );
+			~Optimizer();
 
-		void Initialize();
-		void RunIteration();
+			void Initialize();
+			void RunIteration();
 
-		Individual* tournamentSelection();
+			Individual tournamentSelection();
 
-		vector<Individual*>* getPopulation();
-		Individual* GetCurrentBest() { return currentBest; }
-		double GetCurrentBestFitness() const { return currentBestFitness; }
-		void PrintIndivual(vector<int>& individual, double fitness) const;
-		void PrintGenome(vector<int>& individual) const;
+			vector<Individual*>* getPopulation();
+			Individual GetCurrentBest() { return currentBest; }
+			void PrintIndivual(int* individual, int numCustomers, double fitness) const;
+			void PrintGenome(int* individual, int numCustomers) const;
 
-	private:
-		static const double DEFAULT_MUT_PROB;
-		static const int DEFAULT_POP_SIZE;
-		static const int DEFAULT_NUM_TURNS;
-		
-		Evaluator& evaluator;
-		
-		int popSize;
-		int numTurns;
-		vector<Individual*> population;
-		Individual* currentBest;
-		double currentBestFitness;
-		double mutProb;
+		private:			
+			Evaluator& evaluator;
+			
+			int popSize;
+			int numTurns;
+			double survivalRate;
+			double mutProb;
 
-		mt19937 rng;
+			Individual* population;
+			Individual* previousPopulation;
+			Individual currentBest;
 
-		void InitRandomGenome(vector<int>& individual);
+			mt19937 rng;
+
+			void InitRandomGenome(int* individual, int numCustomers);
 	};
 }

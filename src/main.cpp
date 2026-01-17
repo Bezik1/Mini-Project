@@ -1,7 +1,5 @@
 #include <iostream>
-#include "core/Optimizer/Optimizer.hpp"
-#include "core/ProblemLoader/ProblemLoader.hpp"
-#include "core/Evaluator/Evaluator.hpp"
+#include "core/GeneticAlgorithm/GeneticAlgorithm.hpp"
 
 using namespace std;
 using namespace LcVRPContest;
@@ -9,38 +7,22 @@ using namespace LcVRPContest;
 int main() {
     int populationSize = 10000;
     double mutProb = 0.1;
-    int numTurns = 5;
-    int numEpochs = 200;
+    double survivalRate = 0.1;
+    int numTurns = 10;
+    int numEpochs = 4;
+    int numGroups = 16;
 
-    int numGroups = 6;
+    GeneticAlgorithm geneticAlgorithm(
+        populationSize,
+        numTurns,
+        mutProb,
+        survivalRate,
+        numGroups,
+        numEpochs
+    );
 
-    ProblemLoader loader("Vrp-Set-A", "A-n33-k6");
-    ProblemData data = loader.LoadProblem();
-
-    cout << "Loaded problem: " << data.GetName() << endl;
-    cout << "Number of clients: " << data.GetNumCustomers() << endl;
-
-    Evaluator evaluator(data, numGroups);
-    Optimizer optimizer(evaluator, populationSize, numTurns, mutProb);
-    
-    cout << "\n=== INITALIZE OPTIMIZATION ===" << endl;
-    optimizer.Initialize();
-
-    cout << "Starting optimization (Max " << numEpochs << " iterations)..." << endl;
-
-    for (int i = 0; i < numEpochs; ++i) {
-        optimizer.RunIteration();
-
-        if (i % 50 == 0 || i < 50) {
-            double bestFitness = optimizer.GetCurrentBestFitness();
-            cout << "Iteration " << i << " | Best fitness: " << bestFitness << endl;
-
-                Individual* best = optimizer.GetCurrentBest();
-                if (best != NULL) {
-                    optimizer.PrintIndivual(*(best->getGenome()), best->getFitness());
-                }
-        }
-    }
+    geneticAlgorithm.Initialize();
+    geneticAlgorithm.RunLoop();
 
     return 0;
 }
