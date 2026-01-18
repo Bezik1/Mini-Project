@@ -7,7 +7,7 @@ using namespace LcVRPContest;
 
 ProblemLoader::ProblemLoader(const string& folderName, const string& instanceName)
     : folderName(folderName), 
-      instanceName(instanceName) 
+    instanceName(instanceName) 
 {
     basePath = "../data/lcvrp/" + folderName + "/";
 }

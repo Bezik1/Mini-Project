@@ -38,7 +38,7 @@ void Optimizer::runIteration() {
     int numSurvivors = static_cast<int>(survivalRate * popSize);
 
     for (int j = 0; j < numSurvivors; j++) {
-        std::swap(population[j], previousPopulation[j]);
+        population[j] = previousPopulation[j];
     }
 
     int i = numSurvivors; 

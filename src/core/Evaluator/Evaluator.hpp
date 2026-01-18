@@ -9,7 +9,8 @@ using namespace std;
 namespace LcVRPContest {
 	class Evaluator {
 	public:
-		Evaluator(int numGroups, string folderName, string instanceName);
+		Evaluator(const string folderName, const string instanceName, int numGroups);
+		~Evaluator();
 		
 		double Evaluate(const int* solution);
 
@@ -25,12 +26,15 @@ namespace LcVRPContest {
 
 		int numGroups;
 		int numCustomers;
+
+		mutable int** routesBuffer;
+		mutable int* routeSizes;
 		
 		const double WRONG_VAL = 1e18;
 
-		double calculateRouteCost(const vector<int>& route) const;
-		bool isValidSolution(const vector<int>& grouping) const;
+		double calculateRouteCost(const int* route, int size) const;
+		bool isValidSolution(const int* grouping) const;
 		bool validateConstraints() const;
-		void buildRoutes(const vector<int>& grouping, vector<vector<int>>& routes) const;
+		void buildRoutes(const int* grouping) const;
 	};
 }

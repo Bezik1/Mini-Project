@@ -30,7 +30,7 @@ GeneticAlgorithm::GeneticAlgorithm(
 
     currentBest = Individual();
     
-    evaluator = new Evaluator(numGroups, folderName, instanceName);
+    evaluator = new Evaluator(folderName, instanceName, numGroups);
     optimizer = new Optimizer(
         *evaluator,
         population,

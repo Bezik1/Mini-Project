@@ -39,7 +39,9 @@ namespace LcVRPContest {
 
 			Individual* population;
 			Individual* previousPopulation;
+
 			Individual currentBest;
+			int* bestGenomeBuffer;
 
 			mt19937 rng;
 

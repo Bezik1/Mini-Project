@@ -7,52 +7,54 @@
 
 using namespace LcVRPContest;
 
-Evaluator::Evaluator(int numGroups, string folderName, string instanceName)
+Evaluator::Evaluator(const string folderName, const string instanceName, int numGroups)
     : numGroups(numGroups)
 {
 	ProblemLoader loader(folderName, instanceName);
 	problemData = ProblemData(loader.loadProblem());
 	numCustomers = problemData.getNumCustomers();
 
+	routesBuffer = new int*[numGroups];
+    routeSizes = new int[numGroups];
+
+    for (int i = 0; i < numGroups; ++i) {
+        routesBuffer[i] = new int[numCustomers];
+        routeSizes[i] = 0;
+    }
+
+}
+
+Evaluator::~Evaluator() {
+for (int i = 0; i < numGroups; ++i) {
+        delete[] routesBuffer[i];
+    }
+    delete[] routesBuffer;
+    delete[] routeSizes;
 }
 
 double Evaluator::Evaluate(const int* solution) {
-	if (!validateConstraints()) {
-		return WRONG_VAL;
-	}
+    if (!validateConstraints() || !isValidSolution(solution)) return WRONG_VAL;
 
-	// convert to vector<int> for easier processing
-	vector<int> grouping(solution, solution + numCustomers);
+    buildRoutes(solution);
 
-	if (!isValidSolution(grouping)) {
-		return WRONG_VAL;
-	}
-
-	vector<vector<int>> routes;
-	buildRoutes(grouping, routes);
-
-	double totalCost = 0.0;
-	for (const auto& route : routes) {
-		double route_cost = calculateRouteCost(route);
-		
-		if (route_cost < 0.0) {
-			return WRONG_VAL;
-		}
-			
-		totalCost += route_cost;
-	}
-
-	return totalCost;
+    double totalCost = 0.0;
+    for (int i = 0; i < numGroups; ++i) {
+        if (routeSizes[i] > 0) {
+            double routeCost = calculateRouteCost(routesBuffer[i], routeSizes[i]);
+            if (routeCost < 0.0) return WRONG_VAL;
+            totalCost += routeCost;
+        }
+    }
+    return totalCost;
 }
 
-bool Evaluator::isValidSolution(const vector<int>& grouping) const {
-	// basic check if all grouping values are within bounds
-	for (int group : grouping) {
-		if (group < getLowerBound() || group > getUpperBound()) {
-			return false;
-		}
-	}
-	return true;
+bool Evaluator::isValidSolution(const int* grouping) const {
+    for (int i = 0; i < numCustomers; ++i) {
+        if (grouping[i] < getLowerBound() || grouping[i] > getUpperBound()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool Evaluator::validateConstraints() const {
@@ -62,7 +64,7 @@ bool Evaluator::validateConstraints() const {
 	int capacity = problemData.getCapacity();
 	
 	// check each customer
-	for (int customerId = 2; customerId <= problemData.getDimension(); ++customerId) {
+	for (int customerId = 2; customerId <= problemData.getDimension(); customerId++) {
 		int customerIndex = customerId - 1;
 		
 		// check if any customer has demand > capacity
@@ -90,105 +92,63 @@ bool Evaluator::validateConstraints() const {
 	return true;
 }
 
-void Evaluator::buildRoutes(const vector<int>& grouping, vector<vector<int>>& routes) const {
-	routes.clear();
-	routes.resize(numGroups);
+void Evaluator::buildRoutes(const int* grouping) const {
+    for (int i = 0; i < numGroups; ++i) {
+        routeSizes[i] = 0;
+    }
 
-	const vector<int>& permutation = problemData.getPermutation();
+    const vector<int>& permutation = problemData.getPermutation();
 
-	// distribute customers using permutation and grouping
-	// permutation contains customer ids from 2 to dimension (1 is depo)
-	// grouping contains customer index (0 to num_customers-1)
-		
-	for (size_t i = 0; i < permutation.size(); ++i) {
-		int customerId = permutation[i];
-		// customer id start from 2 (depot is 1), so customer index = customerId - 2
-		int customerIndex = customerId - 2;
-			
-		if (customerIndex >= 0 && customerIndex < numCustomers) {
-			int group = grouping[customerIndex];
-			routes[group].push_back(customerId);
-		}
-	}
+    for (size_t i = 0; i < permutation.size(); ++i) {
+        int customerId = permutation[i];
+        int customerIndex = customerId - 2;
+        
+        int group = grouping[customerIndex];
+        
+        int pos = routeSizes[group];
+        routesBuffer[group][pos] = customerId;
+        routeSizes[group]++;
+    }
 }
 
-double Evaluator::calculateRouteCost(const vector<int>& route) const {
-	if (route.empty()) {
-		return 0.0;
-	}
+double Evaluator::calculateRouteCost(const int* route, int size) const {
+    double totalCost = 0.0;
+    int depotIdx = problemData.getDepot() - 1;
+    int capacity = problemData.getCapacity();
+    const vector<int>& demands = problemData.getDemands();
+    double maxDist = problemData.hasDistanceConstraint() ? problemData.getDistance() : -1.0;
 
-	double totalCost = 0.0;
-	int depot = problemData.getDepot();
-	int depotIndex = depot - 1; // depot index in 0-based for easier calculations
-	int capacity = problemData.getCapacity();
-	double maxDistance = problemData.hasDistanceConstraint() ? problemData.getDistance() : -1.0;
-	const vector<int>& demands = problemData.getDemands();
+    int currentLoad = 0;
+    double currentDist = 0.0;
+    int lastPos = depotIdx;
 
-	int currentLoad = 0;
-	double currentDist = 0.0;
-	int lastPositionIndex = depotIndex;
+    for (int i = 0; i < size; ++i) {
+        int customerId = route[i];
+        int customerIdx = customerId - 1;
+        int demand = demands[customerIdx];
+        double dNext = problemData.calculateDistance(lastPos, customerIdx);
 
-	for (size_t i = 0; i < route.size(); ++i) {
-		int customerId = route[i];
-		int customerIndex = customerId - 1;
-		int customer_demand = demands[customerIndex];
+        bool capEx = (currentLoad + demand > capacity);
+        bool distEx = false;
+        
+        if (maxDist > 0.0) {
+            double dBack = problemData.calculateDistance(customerIdx, depotIdx);
+            if (currentDist + dNext + dBack > maxDist) distEx = true;
+        }
 
-		// we check if adding this new customer would exceed CAPACITY constraint
-		if (currentLoad + customer_demand > capacity) {
-			// return to depot, close current subtour
-			double distToDepot = problemData.calculateDistance(lastPositionIndex, depotIndex);
-			if (distToDepot < 0.0) return WRONG_VAL;
-			
-			currentDist += distToDepot;
-			totalCost += currentDist;
+        if (capEx || distEx) {
+            totalCost += (currentDist + problemData.calculateDistance(lastPos, depotIdx));
+            currentLoad = 0;
+            currentDist = 0.0;
+            lastPos = depotIdx;
+            dNext = problemData.calculateDistance(depotIdx, customerIdx);
+        }
 
-			// reset for new subtour
-			currentLoad = 0;
-			currentDist = 0.0;
-			lastPositionIndex = depotIndex;
-		}
+        currentDist += dNext;
+        currentLoad += demand;
+        lastPos = customerIdx;
+    }
 
-		// calculate distance to the next customer
-		double distToCustomer = problemData.calculateDistance(lastPositionIndex, customerIndex);
-		if (distToCustomer < 0.0) return WRONG_VAL;
-
-		// check if adding this customer would exceed DISTANCE constraint
-		if (maxDistance > 0.0) {
-			double dist_back_to_depot = problemData.calculateDistance(customerIndex, depotIndex);
-			if (dist_back_to_depot < 0.0) return WRONG_VAL;
-
-			// would this customer + return to depot exceed maxDistance?
-			if (currentDist + distToCustomer + dist_back_to_depot > maxDistance) {
-				// close current subtour and start new one
-				double distToDepot = problemData.calculateDistance(lastPositionIndex, depotIndex);
-				if (distToDepot < 0.0) return WRONG_VAL;
-				
-				currentDist += distToDepot;
-				totalCost += currentDist;
-
-				// reset for new subtour starting from depot
-				currentLoad = 0;
-				currentDist = 0.0;
-				lastPositionIndex = depotIndex;
-
-				// recalculate distance to customer from depot
-				distToCustomer = problemData.calculateDistance(depotIndex, customerIndex);
-				if (distToCustomer < 0.0) return WRONG_VAL;
-			}
-		}
-
-		// add customer to current subtour
-		currentDist += distToCustomer;
-		currentLoad += customer_demand;
-		lastPositionIndex = customerIndex;
-	}
-
-	// close final subtour and return to depot
-	double distToDepot = problemData.calculateDistance(lastPositionIndex, depotIndex);
-	if (distToDepot < 0.0) return WRONG_VAL;
-	
-	currentDist += distToDepot;
-	totalCost += currentDist;
-
-	return totalCost;
+    totalCost += (currentDist + problemData.calculateDistance(lastPos, depotIdx));
+    return totalCost;
 }

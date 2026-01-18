@@ -24,7 +24,6 @@ double ProblemData::calculateDistance(int i, int j) const {
     } 
     else if (edgeWeightType == "EXPLICIT") {
         if (edgeWeights.empty()) return WRONG_VAL;
-        // Obsługa macierzy trójkątnej symetrycznej
         return (i > j) ? edgeWeights[i][j] : edgeWeights[j][i];
     }
     return WRONG_VAL;
