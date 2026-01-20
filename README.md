@@ -16,19 +16,19 @@ detail.
 Note in case of path error, modify the `ProblemLoader::BASE_PATH`,
 `ProblemLoader::BASE_EXTENSION`, folderName or instanceName parameters.
 ```bash
-    ## Build Command
-    /usr/bin/clang++ -std=c++14 -g \
-    src/main.cpp \
-    src/core/Evaluator/Evaluator.cpp \
-    src/core/GeneticAlgorithm/GeneticAlgorithm.cpp \
-    src/core/Optimizer/Optimizer.cpp \
-    src/core/Individual/Individual.cpp \
-    src/core/ProblemData/ProblemData.cpp \
-    src/core/ProblemLoader/ProblemLoader.cpp \
-    -o src/main
+## Build Command
+/usr/bin/clang++ -std=c++14 -g \
+src/main.cpp \
+src/core/Evaluator/Evaluator.cpp \
+src/core/GeneticAlgorithm/GeneticAlgorithm.cpp \
+src/core/Optimizer/Optimizer.cpp \
+src/core/Individual/Individual.cpp \
+src/core/ProblemData/ProblemData.cpp \
+src/core/ProblemLoader/ProblemLoader.cpp \
+-o src/main
 
-    ## Run Command
-    ./src/main
+## Run Command
+./src/main
 ```
 
 ## Documentation
