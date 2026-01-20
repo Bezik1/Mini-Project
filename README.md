@@ -8,7 +8,8 @@ in lower level `C++`, with the code optimized down to the last
 detail.
 
 ## ⚙️ $Commands$
-Note in case of path error, modify the `ProblemLoader::BASE_PATH`,
+Note:
+In case of path error, modify the `ProblemLoader::BASE_PATH`,
 `ProblemLoader::BASE_EXTENSION`, folderName or instanceName parameters.
 ```bash
 ## Build Command
