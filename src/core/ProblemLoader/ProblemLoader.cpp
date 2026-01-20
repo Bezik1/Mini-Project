@@ -5,16 +5,20 @@
 
 using namespace LcVRPContest;
 
+const string ProblemLoader::BASE_PATH = "../data/lcvrp_v3/";
+const string ProblemLoader::BASE_EXTENSION = ".lcvrp";
+
+
 ProblemLoader::ProblemLoader(const string& folderName, const string& instanceName)
     : folderName(folderName), 
     instanceName(instanceName) 
 {
-    basePath = "../data/lcvrp_v3/" + folderName + "/";
+    basePath = BASE_PATH + folderName + "/";
 }
 
 ProblemData ProblemLoader::loadProblem() {
     ProblemData problemData;
-    string filePath = basePath + instanceName + ".lcvrp";
+    string filePath = basePath + instanceName + BASE_EXTENSION;
     
     parseLcVrpFile(filePath, problemData);
     

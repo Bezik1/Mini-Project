@@ -13,6 +13,9 @@ namespace LcVRPContest {
         ProblemData loadProblem();
 
     private:
+        static const string BASE_PATH;
+        static const string BASE_EXTENSION;
+
         string folderName;
         string instanceName;
         string basePath;
