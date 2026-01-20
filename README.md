@@ -1,9 +1,4 @@
-# 🧠  $Mini$ $Project$
-<p align="center">
-    <a href="https://skillicons.dev">
-        <img src="https://skillicons.dev/icons?i=cpp,vscode,github,git" />
-    </a>
-</p>
+# $Mini$ $Project$
 
 ## 💡 $Overview$
 This project goal was to find the best soultion for the 
@@ -98,3 +93,9 @@ Friend Swap: Implements a high-performance friend void swap using the copy-and-s
 friend void swap(Individual& first, Individual& second);
 ```
 Custom Operators: Overloads < and > to facilitate integration with the HeapSort algorithm.
+
+<p align="center">
+    <a href="https://skillicons.dev">
+        <img src="https://skillicons.dev/icons?i=cpp,vscode,github,git" />
+    </a>
+</p>
