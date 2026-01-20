@@ -37,7 +37,6 @@ void Optimizer::runIteration() {
     swap(population, previousPopulation);
 
     HeapSort<Individual>::sort(previousPopulation, popSize);
-
     int numCopiedIndividuals = static_cast<int>((1 - crossoverProb) * popSize);
 
     int i = numCopiedIndividuals; 
@@ -50,6 +49,9 @@ void Optimizer::runIteration() {
             
             population[i].mutate(rng, mutProb);
             population[i+1].mutate(rng, mutProb);
+
+            population[i].recalculateFitness();
+            population[i+1].recalculateFitness();
 
             if(population[i].getFitness() < currentBest->getFitness())
                 *currentBest = population[i]; 

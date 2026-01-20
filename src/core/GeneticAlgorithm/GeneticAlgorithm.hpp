@@ -40,6 +40,10 @@ namespace LcVRPContest {
 			Individual* population;
 			Individual* previousPopulation;
 
+			int numCustomers;
+			int* genomes;
+			int* prevGenomes;
+
 			Individual currentBest;
 			int* bestGenomeBuffer;
 

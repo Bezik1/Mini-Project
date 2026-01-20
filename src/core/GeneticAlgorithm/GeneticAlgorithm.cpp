@@ -28,9 +28,19 @@ GeneticAlgorithm::GeneticAlgorithm(
     population = new Individual[popSize];
     previousPopulation = new Individual[popSize];
 
+    numCustomers = evaluator->getSolutionSize();
+    genomes = new int[popSize * numCustomers];
+    prevGenomes = new int[popSize * numCustomers];
+
     currentBest = Individual();
     
     evaluator = new Evaluator(folderName, instanceName, numGroups);
+
+    for(int i = 0; i < popSize; i++) {
+        population[i] = Individual(&genomes[i * numCustomers], numGroups, *evaluator, numCustomers);
+        previousPopulation[i] = Individual(&prevGenomes[i * numCustomers], numGroups, *evaluator, numCustomers);
+    }
+
     optimizer = new Optimizer(
         *evaluator,
         population,
@@ -44,6 +54,9 @@ GeneticAlgorithm::GeneticAlgorithm(
 }
 
 GeneticAlgorithm::~GeneticAlgorithm() {
+    delete[] genomes;
+    delete[] prevGenomes;
+
     delete[] population;
     delete[] previousPopulation;
 
@@ -52,16 +65,12 @@ GeneticAlgorithm::~GeneticAlgorithm() {
 }
 
 void GeneticAlgorithm::initialize() {
-    int numCustomers = evaluator->getSolutionSize();
-
     for(int i = 0; i < popSize; i++) {
-        int* randomGenome = new int[numCustomers];
-        initRandomGenome(randomGenome, numCustomers);
+        initRandomGenome(const_cast<int*>(population[i].getGenome()), numCustomers);
+        initRandomGenome(const_cast<int*>(previousPopulation[i].getGenome()), numCustomers);
 
-        population[i] = Individual(randomGenome, evaluator->getNumGroups(), *evaluator, numCustomers);
-        previousPopulation[i] = Individual(randomGenome, evaluator->getNumGroups(), *evaluator, numCustomers);
-
-        delete[] randomGenome;
+        population[i].recalculateFitness();
+        previousPopulation[i].recalculateFitness();
     }
     currentBest = population[0];
 }

@@ -8,34 +8,28 @@
 namespace LcVRPContest {
     class Individual {
         public:
-            Individual() : evaluator(NULL), numCustomers(0), numGroups(0), genome(NULL), fitness(1e18) {}
-            Individual(Individual&& other);
+            Individual() : evaluator(NULL), genome(NULL), numCustomers(0), numGroups(0), fitness(1e18) {}
 
-            Individual(int newGenome[], int newNumGroups, Evaluator& newEvaluator, int genomeSize);
-            Individual(const Individual &other);
-            ~Individual();
+            Individual(int* sharedGenomeSpace, int newNumGroups, Evaluator& newEvaluator, int genomeSize);
 
-            Individual& operator=(Individual&& other);
+            ~Individual() {}
+
+            friend void swap(Individual& first, Individual& second);
+
+            Individual(const Individual& other);
             Individual& operator=(const Individual& other);
+
+            void crossoverInPlace(const Individual& parent2, Individual& child1, Individual& child2, mt19937 &rng) const;
+            void mutate(mt19937 &rng, double mutProb);
+            void recalculateFitness();
 
             bool operator>(const Individual& other) const;
             bool operator<(const Individual& other) const;
 
-            void crossoverInPlace(
-                const Individual& parent2,
-                Individual& child1,
-                Individual& child2,
-                mt19937 &rng
-            ) const;
+            double getFitness() const { return fitness; }
+            const int* getGenome() const { return genome; }
+            int getNumCustomers() const { return numCustomers; }
 
-            void mutate(mt19937 &rng, double mutProb);
-            
-            const int* getGenome() const;
-            double getFitness() const;
-            int getNumGroups() const;
-            int getNumCustomers() const;
-
-            void recalculateFitness();            
         private:
             Evaluator* evaluator;
             int* genome;

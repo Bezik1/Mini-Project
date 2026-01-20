@@ -11,10 +11,10 @@ int main() {
     double crossoverProb = 0.85;
     int numTurns = 5;
     int numEpochs = 300;
-    int numGroups = 2;
+    int numGroups = 16;
 
-    string folderName = "Vrp-Set-P";
-    string instanceName = "P-n19-k2";
+    string folderName = "Vrp-Set-X";
+    string instanceName = "X-n209-k16";
 
     GeneticAlgorithm geneticAlgorithm(
         folderName,

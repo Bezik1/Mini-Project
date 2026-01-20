@@ -2,75 +2,40 @@
 
 using namespace LcVRPContest;
 
-Individual::Individual(int newGenome[], int newNumGroups, Evaluator &newEvaluator, int genomSize) 
-    : evaluator(&newEvaluator), numCustomers(genomSize), numGroups(newNumGroups) {
-    
-    genome = new int[numCustomers];
-    for(int i = 0; i < numCustomers; i++) {
-        genome[i] = newGenome[i];
-    }
-    fitness = evaluator->evaluate(genome);
+void LcVRPContest::swap(Individual& first, Individual& second) {
+    using std::swap;
+
+    swap(first.genome, second.genome);
+    swap(first.fitness, second.fitness);
+    swap(first.evaluator, second.evaluator);
+    swap(first.numCustomers, second.numCustomers);
+    swap(first.numGroups, second.numGroups);   
 }
 
-Individual::Individual(Individual&& other)
-    : evaluator(other.evaluator),
-    numCustomers(other.numCustomers),
-    numGroups(other.numGroups),
-    genome(other.genome),
-    fitness(other.fitness)
-{
-    other.genome = NULL;
-    other.numCustomers = 0;
-}
-
-Individual& Individual::operator=(Individual&& other) {
-    if (this != &other) {
-        delete[] genome;
-
-        evaluator = other.evaluator;
-        numCustomers = other.numCustomers;
-        numGroups = other.numGroups;
-        genome = other.genome;
-        fitness = other.fitness;
-
-        other.genome = NULL;
-        other.numCustomers = 0;
-    }
-    return *this;
+Individual::Individual(int* sharedGenomeSpace, int newNumGroups, Evaluator &newEvaluator, int genomeSize) 
+    : evaluator(&newEvaluator), numCustomers(genomeSize), numGroups(newNumGroups), genome(sharedGenomeSpace) {
 }
 
 Individual::Individual(const Individual& other) 
-    : evaluator(other.evaluator), 
-    numCustomers(other.numCustomers), 
-    numGroups(other.numGroups), 
-    fitness(other.fitness) {
-    
-    if (other.genome != nullptr) {
-        genome = new int[numCustomers];
-        for (int i = 0; i < numCustomers; i++) {
-            genome[i] = other.genome[i];
-        }
-    } else {
-        genome = nullptr;
-    }
+    : evaluator(other.evaluator), genome(NULL), numCustomers(other.numCustomers), 
+    numGroups(other.numGroups), fitness(other.fitness) {
 }
 
 Individual& Individual::operator=(const Individual& other) {
     if (this != &other) {
-        if(genome != NULL) delete[] genome;
-        
         evaluator = other.evaluator;
         numCustomers = other.numCustomers;
         numGroups = other.numGroups;
         fitness = other.fitness;
         
-        if (other.genome != NULL) {
-            genome = new int[numCustomers];
+        if (this->genome == NULL) {
+            this->genome = other.genome;
+        }
+
+        if (this->genome != NULL && other.genome != NULL && this->genome != other.genome) {
             for(int i = 0; i < numCustomers; i++) {
-                genome[i] = other.genome[i];
+                this->genome[i] = other.genome[i];
             }
-        } else {
-            genome = NULL;
         }
     }
     return *this;
@@ -84,10 +49,6 @@ bool Individual::operator<(const Individual& other) const {
     return this->fitness < other.fitness;
 }
 
-Individual::~Individual() {
-    if(genome != NULL) delete[] genome;
-}
-
 void Individual::crossoverInPlace(const Individual& parent2, Individual& child1, Individual& child2, mt19937 &rng) const {
     uniform_int_distribution<int> dist(1, numCustomers - 1);
     int cutPoint = dist(rng);
@@ -96,8 +57,6 @@ void Individual::crossoverInPlace(const Individual& parent2, Individual& child1,
         child1.genome[i] = (i < cutPoint) ? this->genome[i] : parent2.genome[i];
         child2.genome[i] = (i < cutPoint) ? parent2.genome[i] : this->genome[i];
     }
-    child1.fitness = evaluator->evaluate(child1.genome);
-    child2.fitness = evaluator->evaluate(child2.genome);
 }
 
 void Individual::mutate(mt19937 &rng, double mutProb) {
@@ -111,20 +70,6 @@ void Individual::mutate(mt19937 &rng, double mutProb) {
             genome[i] = genes(rng);
         }
     }
-    fitness = evaluator->evaluate(genome);
-}
-
-const int* Individual::getGenome() const {
-    return genome;
-}
-double Individual::getFitness() const {
-    return fitness;
-}
-int Individual::getNumGroups() const {
-    return numGroups;
-}
-int Individual::getNumCustomers() const {
-    return numCustomers;
 }
 
 void Individual::recalculateFitness() {
