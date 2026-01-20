@@ -12,6 +12,12 @@ void LcVRPContest::swap(Individual& first, Individual& second) {
     swap(first.numGroups, second.numGroups);   
 }
 
+void Individual::copyGenome(const int* otherGenome) {
+    for(int i=0; i<numCustomers; i++) {
+        genome[i] = otherGenome[i];
+    }
+}
+
 Individual::Individual(int* sharedGenomeSpace, int newNumGroups, Evaluator &newEvaluator, int genomeSize) 
     : evaluator(&newEvaluator), numCustomers(genomeSize), numGroups(newNumGroups), genome(sharedGenomeSpace) {
 }

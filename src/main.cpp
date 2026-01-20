@@ -10,7 +10,7 @@ int main() {
     double mutProb = 0.03;
     double crossoverProb = 0.85;
     int numTurns = 5;
-    int numEpochs = 300;
+    int numEpochs = 600;
     int numGroups = 16;
 
     string folderName = "Vrp-Set-X";

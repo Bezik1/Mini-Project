@@ -27,14 +27,12 @@ GeneticAlgorithm::GeneticAlgorithm(
 
     population = new Individual[popSize];
     previousPopulation = new Individual[popSize];
+    
+    evaluator = new Evaluator(folderName, instanceName, numGroups);
 
     numCustomers = evaluator->getSolutionSize();
     genomes = new int[popSize * numCustomers];
     prevGenomes = new int[popSize * numCustomers];
-
-    currentBest = Individual();
-    
-    evaluator = new Evaluator(folderName, instanceName, numGroups);
 
     for(int i = 0; i < popSize; i++) {
         population[i] = Individual(&genomes[i * numCustomers], numGroups, *evaluator, numCustomers);
@@ -51,11 +49,15 @@ GeneticAlgorithm::GeneticAlgorithm(
         crossoverProb,
         &currentBest
     );
+
+    bestGenomeBuffer = new int[numCustomers];
+    currentBest = Individual(bestGenomeBuffer, numGroups, *evaluator, numCustomers);
 }
 
 GeneticAlgorithm::~GeneticAlgorithm() {
     delete[] genomes;
     delete[] prevGenomes;
+    delete[] bestGenomeBuffer;
 
     delete[] population;
     delete[] previousPopulation;
@@ -67,12 +69,14 @@ GeneticAlgorithm::~GeneticAlgorithm() {
 void GeneticAlgorithm::initialize() {
     for(int i = 0; i < popSize; i++) {
         initRandomGenome(const_cast<int*>(population[i].getGenome()), numCustomers);
-        initRandomGenome(const_cast<int*>(previousPopulation[i].getGenome()), numCustomers);
+
+        previousPopulation[i].copyGenome(population[i].getGenome());
 
         population[i].recalculateFitness();
         previousPopulation[i].recalculateFitness();
     }
-    currentBest = population[0];
+    currentBest.copyGenome(population[0].getGenome());
+    currentBest.recalculateFitness();
 }
 
 void GeneticAlgorithm::runLoop() {

@@ -16,6 +16,8 @@ namespace LcVRPContest {
 
             friend void swap(Individual& first, Individual& second);
 
+            void copyGenome(const int* otherGenome);
+
             Individual(const Individual& other);
             Individual& operator=(const Individual& other);
 

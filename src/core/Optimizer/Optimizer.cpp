@@ -34,9 +34,9 @@ Optimizer::Optimizer(
 Optimizer::~Optimizer() {}
 
 void Optimizer::runIteration() {
+    HeapSort<Individual>::sort(previousPopulation, popSize);
     swap(population, previousPopulation);
 
-    HeapSort<Individual>::sort(previousPopulation, popSize);
     int numCopiedIndividuals = static_cast<int>((1 - crossoverProb) * popSize);
 
     int i = numCopiedIndividuals; 
