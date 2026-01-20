@@ -9,7 +9,7 @@ ProblemLoader::ProblemLoader(const string& folderName, const string& instanceNam
     : folderName(folderName), 
     instanceName(instanceName) 
 {
-    basePath = "../data/lcvrp/" + folderName + "/";
+    basePath = "../data/lcvrp_v3/" + folderName + "/";
 }
 
 ProblemData ProblemLoader::loadProblem() {

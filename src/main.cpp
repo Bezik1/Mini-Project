@@ -6,15 +6,15 @@ using namespace std;
 using namespace LcVRPContest;
 
 int main() {
-    int populationSize = 10000;
-    double mutProb = 0.06;
-    double crossoverProb = 0.05;
+    int populationSize = 100000;
+    double mutProb = 0.03;
+    double crossoverProb = 0.85;
     int numTurns = 5;
     int numEpochs = 300;
-    int numGroups = 16;
+    int numGroups = 2;
 
-    string folderName = "Vrp-Set-X";
-    string instanceName = "X-n209-k16";
+    string folderName = "Vrp-Set-P";
+    string instanceName = "P-n19-k2";
 
     GeneticAlgorithm geneticAlgorithm(
         folderName,

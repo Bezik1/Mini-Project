@@ -38,7 +38,7 @@ void Optimizer::runIteration() {
 
     HeapSort<Individual>::sort(previousPopulation, popSize);
 
-    int numCopiedIndividuals = static_cast<int>(crossoverProb * popSize);
+    int numCopiedIndividuals = static_cast<int>((1 - crossoverProb) * popSize);
 
     int i = numCopiedIndividuals; 
     while(i < popSize) {

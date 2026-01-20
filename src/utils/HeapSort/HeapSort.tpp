@@ -21,17 +21,23 @@ void HeapSort<T>::sort(T* array, int size) {
 template<typename T>
 void HeapSort<T>::heapify(T* array, int size, int index) {
     int largest = index;
-    int left = 2 * index + 1;
-    int right = 2 * index + 2;
 
-    if (left < size && array[left] > array[largest])
-        largest = left;
+    while (true) {
+        int left = 2 * largest + 1;
+        int right = 2 * largest + 2;
+        int currentLargest = largest;
 
-    if (right < size && array[right] > array[largest])
-        largest = right;
+        if (left < size && array[left] > array[currentLargest])
+            currentLargest = left;
 
-    if (largest != index) {
-        swap(array[index], array[largest]);
-        heapify(array, size, largest);
+        if (right < size && array[right] > array[currentLargest])
+            currentLargest = right;
+
+        if (currentLargest != largest) {
+            swap(array[largest], array[currentLargest]);
+            largest = currentLargest;
+        } else {
+            break;
+        }
     }
 }
