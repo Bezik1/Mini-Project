@@ -9,7 +9,7 @@ Individual::Individual(int newGenome[], int newNumGroups, Evaluator &newEvaluato
     for(int i = 0; i < numCustomers; i++) {
         genome[i] = newGenome[i];
     }
-    fitness = evaluator->Evaluate(genome);
+    fitness = evaluator->evaluate(genome);
 }
 
 Individual::Individual(Individual&& other)
@@ -39,6 +39,22 @@ Individual& Individual::operator=(Individual&& other) {
     return *this;
 }
 
+Individual::Individual(const Individual& other) 
+    : evaluator(other.evaluator), 
+    numCustomers(other.numCustomers), 
+    numGroups(other.numGroups), 
+    fitness(other.fitness) {
+    
+    if (other.genome != nullptr) {
+        genome = new int[numCustomers];
+        for (int i = 0; i < numCustomers; i++) {
+            genome[i] = other.genome[i];
+        }
+    } else {
+        genome = nullptr;
+    }
+}
+
 Individual& Individual::operator=(const Individual& other) {
     if (this != &other) {
         if(genome != NULL) delete[] genome;
@@ -60,6 +76,14 @@ Individual& Individual::operator=(const Individual& other) {
     return *this;
 }
 
+bool Individual::operator>(const Individual& other) const {
+    return this->fitness > other.fitness;
+}
+
+bool Individual::operator<(const Individual& other) const {
+    return this->fitness < other.fitness;
+}
+
 Individual::~Individual() {
     if(genome != NULL) delete[] genome;
 }
@@ -72,8 +96,8 @@ void Individual::crossoverInPlace(const Individual& parent2, Individual& child1,
         child1.genome[i] = (i < cutPoint) ? this->genome[i] : parent2.genome[i];
         child2.genome[i] = (i < cutPoint) ? parent2.genome[i] : this->genome[i];
     }
-    child1.fitness = evaluator->Evaluate(child1.genome);
-    child2.fitness = evaluator->Evaluate(child2.genome);
+    child1.fitness = evaluator->evaluate(child1.genome);
+    child2.fitness = evaluator->evaluate(child2.genome);
 }
 
 void Individual::mutate(mt19937 &rng, double mutProb) {
@@ -87,7 +111,7 @@ void Individual::mutate(mt19937 &rng, double mutProb) {
             genome[i] = genes(rng);
         }
     }
-    fitness = evaluator->Evaluate(genome);
+    fitness = evaluator->evaluate(genome);
 }
 
 const int* Individual::getGenome() const {
@@ -105,6 +129,6 @@ int Individual::getNumCustomers() const {
 
 void Individual::recalculateFitness() {
     if(genome && evaluator) {
-        fitness = evaluator->Evaluate(genome);
+        fitness = evaluator->evaluate(genome);
     }
 }

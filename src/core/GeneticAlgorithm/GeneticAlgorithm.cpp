@@ -13,13 +13,13 @@ GeneticAlgorithm::GeneticAlgorithm(
     int newPopSize,
     int newNumTurns,
     double newMutProb,
-    double newSurvivalRate,
+    double newCrossoverProb,
     int numGroups,
     int newNumEpochs
 ) 
     : rng(random_device{}()) {
     
-    survivalRate = newSurvivalRate;
+    crossoverProb = newCrossoverProb;
 	numTurns = newNumTurns;
 	mutProb = newMutProb;
 	popSize = newPopSize;
@@ -38,7 +38,7 @@ GeneticAlgorithm::GeneticAlgorithm(
         popSize,
         numTurns,
         newMutProb,
-        survivalRate,
+        crossoverProb,
         &currentBest
     );
 }

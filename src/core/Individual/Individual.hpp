@@ -18,6 +18,9 @@ namespace LcVRPContest {
             Individual& operator=(Individual&& other);
             Individual& operator=(const Individual& other);
 
+            bool operator>(const Individual& other) const;
+            bool operator<(const Individual& other) const;
+
             void crossoverInPlace(
                 const Individual& parent2,
                 Individual& child1,

@@ -8,7 +8,7 @@ using namespace LcVRPContest;
 int main() {
     int populationSize = 10000;
     double mutProb = 0.06;
-    double survivalRate = 0.05;
+    double crossoverProb = 0.05;
     int numTurns = 5;
     int numEpochs = 300;
     int numGroups = 16;
@@ -22,7 +22,7 @@ int main() {
         populationSize,
         numTurns,
         mutProb,
-        survivalRate,
+        crossoverProb,
         numGroups,
         numEpochs
     );

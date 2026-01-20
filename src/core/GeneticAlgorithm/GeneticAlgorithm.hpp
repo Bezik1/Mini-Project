@@ -18,7 +18,7 @@ namespace LcVRPContest {
 				int newPopSize,
 				int newNumTurns,
 				double newMutProb,
-				double newSurvivalRate,
+				double newCrossoverProb,
 				int numGroups,
 				int newNumEpochs
 			);
@@ -34,7 +34,7 @@ namespace LcVRPContest {
 			int popSize;
 			int numTurns;
 			int numEpochs;
-			double survivalRate;
+			double crossoverProb;
 			double mutProb;
 
 			Individual* population;

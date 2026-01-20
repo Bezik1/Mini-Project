@@ -1,5 +1,6 @@
 #include "Optimizer.hpp"
 #include "../Individual/Individual.hpp"
+#include "../../utils/HeapSort/HeapSort.hpp"
 
 #include <iostream>
 #include <limits>
@@ -14,12 +15,12 @@ Optimizer::Optimizer(
     int newPopSize,
     int newNumTurns,
     double newMutProb,
-    double newSurvivalRate,
+    double newCrossoverProb,
     Individual* newCurrentBest
 )  : evaluator(evaluator), 
 	rng(random_device{}()) {
     
-    survivalRate = newSurvivalRate;
+    crossoverProb = newCrossoverProb;
 	numTurns = newNumTurns;
 	mutProb = newMutProb;
 	popSize = newPopSize;
@@ -33,15 +34,13 @@ Optimizer::Optimizer(
 Optimizer::~Optimizer() {}
 
 void Optimizer::runIteration() {
-    std::swap(population, previousPopulation);
+    swap(population, previousPopulation);
 
-    int numSurvivors = static_cast<int>(survivalRate * popSize);
+    HeapSort<Individual>::sort(previousPopulation, popSize);
 
-    for (int j = 0; j < numSurvivors; j++) {
-        population[j] = previousPopulation[j];
-    }
+    int numCopiedIndividuals = static_cast<int>(crossoverProb * popSize);
 
-    int i = numSurvivors; 
+    int i = numCopiedIndividuals; 
     while(i < popSize) {
         Individual &parentOne = tournamentSelection();
         Individual &parentTwo = tournamentSelection();

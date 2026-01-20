@@ -8,11 +8,8 @@
 using namespace LcVRPContest;
 
 Evaluator::Evaluator(const string folderName, const string instanceName, int numGroups)
-    : numGroups(numGroups)
-{
-	ProblemLoader loader(folderName, instanceName);
-	problemData = ProblemData(loader.loadProblem());
-	numCustomers = problemData.getNumCustomers();
+    : numGroups(numGroups) {
+    loadProblem(folderName, instanceName);
 
 	routesBuffer = new int*[numGroups];
     routeSizes = new int[numGroups];
@@ -21,7 +18,12 @@ Evaluator::Evaluator(const string folderName, const string instanceName, int num
         routesBuffer[i] = new int[numCustomers];
         routeSizes[i] = 0;
     }
+}
 
+void Evaluator::loadProblem(string folderName, string instanceName) {
+    ProblemLoader loader(folderName, instanceName);
+	problemData = ProblemData(loader.loadProblem());
+	numCustomers = problemData.getNumCustomers();
 }
 
 Evaluator::~Evaluator() {
@@ -32,7 +34,7 @@ for (int i = 0; i < numGroups; ++i) {
     delete[] routeSizes;
 }
 
-double Evaluator::Evaluate(const int* solution) {
+double Evaluator::evaluate(const int* solution) {
     if (!validateConstraints() || !isValidSolution(solution)) return WRONG_VAL;
 
     buildRoutes(solution);

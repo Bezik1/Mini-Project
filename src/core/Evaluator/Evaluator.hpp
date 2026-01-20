@@ -12,7 +12,7 @@ namespace LcVRPContest {
 		Evaluator(const string folderName, const string instanceName, int numGroups);
 		~Evaluator();
 		
-		double Evaluate(const int* solution);
+		double evaluate(const int* solution);
 
 		int getSolutionSize() const { return numCustomers; }
 		int getLowerBound() const { return 0; } 
@@ -20,8 +20,6 @@ namespace LcVRPContest {
 		int getNumGroups() const { return numGroups; }
 
 	private:
-		string folderName;
-		string instanceName;
 		ProblemData problemData;
 
 		int numGroups;
@@ -36,5 +34,9 @@ namespace LcVRPContest {
 		bool isValidSolution(const int* grouping) const;
 		bool validateConstraints() const;
 		void buildRoutes(const int* grouping) const;
+		void loadProblem(
+			string folderName,
+			string instanceName
+		);
 	};
 }
