@@ -12,6 +12,9 @@ Note:
 In case of path error, modify the `ProblemLoader::BASE_PATH`,
 `ProblemLoader::BASE_EXTENSION`, folderName or instanceName parameters.
 ```bash
+## Create output directory (once)
+mkdir -p bin
+
 ## Build Command
 /usr/bin/clang++ -std=c++14 -g \
 src/main.cpp \
@@ -21,10 +24,10 @@ src/core/Optimizer/Optimizer.cpp \
 src/core/Individual/Individual.cpp \
 src/core/ProblemData/ProblemData.cpp \
 src/core/ProblemLoader/ProblemLoader.cpp \
--o src/main
+-o bin/main
 
 ## Run Command
-./src/main
+./bin/main
 ```
 
 ## $Parameters$
