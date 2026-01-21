@@ -9,6 +9,13 @@
 using namespace std;
 
 namespace LcVRPContest {
+	/**
+	 * @brief Optimizer holds the methods used in order to run single iteration of GA instance. 
+	 * 
+	 * @details
+	 * 
+	 * 
+	 */
 	class Optimizer {
 		public:
 			Optimizer(

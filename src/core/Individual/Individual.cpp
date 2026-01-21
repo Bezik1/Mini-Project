@@ -55,13 +55,13 @@ bool Individual::operator<(const Individual& other) const {
     return this->fitness < other.fitness;
 }
 
-void Individual::crossoverInPlace(const Individual& parent2, Individual& child1, Individual& child2, mt19937 &rng) const {
+void Individual::crossover(const Individual& otherParent, Individual& childOne, Individual& childTwo, mt19937 &rng) const {
     uniform_int_distribution<int> dist(1, numCustomers - 1);
     int cutPoint = dist(rng);
 
     for (int i = 0; i < numCustomers; i++) {
-        child1.genome[i] = (i < cutPoint) ? this->genome[i] : parent2.genome[i];
-        child2.genome[i] = (i < cutPoint) ? parent2.genome[i] : this->genome[i];
+        childOne.genome[i] = (i < cutPoint) ? this->genome[i] : otherParent.genome[i];
+        childTwo.genome[i] = (i < cutPoint) ? otherParent.genome[i] : this->genome[i];
     }
 }
 

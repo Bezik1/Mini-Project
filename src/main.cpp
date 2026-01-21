@@ -6,6 +6,7 @@ using namespace std;
 using namespace LcVRPContest;
 
 int main() {
+    // GA Parameters
     int populationSize = 100000;
     double mutProb = 0.03;
     double crossoverProb = 0.85;
@@ -13,6 +14,7 @@ int main() {
     int numEpochs = 600;
     int numGroups = 16;
 
+    // Dataset Parameters
     string folderName = "Vrp-Set-X";
     string instanceName = "X-n209-k16";
 
@@ -26,7 +28,7 @@ int main() {
         numGroups,
         numEpochs
     );
-
+    
     geneticAlgorithm.initialize();
     geneticAlgorithm.runLoop();
 

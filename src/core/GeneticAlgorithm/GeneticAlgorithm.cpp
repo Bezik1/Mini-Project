@@ -35,8 +35,19 @@ GeneticAlgorithm::GeneticAlgorithm(
     prevGenomes = new int[popSize * numCustomers];
 
     for(int i = 0; i < popSize; i++) {
-        population[i] = Individual(&genomes[i * numCustomers], numGroups, *evaluator, numCustomers);
-        previousPopulation[i] = Individual(&prevGenomes[i * numCustomers], numGroups, *evaluator, numCustomers);
+        population[i] = Individual(
+            &genomes[i * numCustomers],
+            numGroups,
+            *evaluator,
+            numCustomers
+        );
+        
+        previousPopulation[i] = Individual(
+            &prevGenomes[i * numCustomers],
+            numGroups,
+            *evaluator,
+            numCustomers
+        );
     }
 
     optimizer = new Optimizer(

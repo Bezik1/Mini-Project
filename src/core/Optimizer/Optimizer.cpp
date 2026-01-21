@@ -45,7 +45,7 @@ void Optimizer::runIteration() {
         Individual &parentTwo = tournamentSelection();
 
         if (i+1 < popSize) {
-            parentOne.crossoverInPlace(parentTwo, population[i], population[i+1], rng);
+            parentOne.crossover(parentTwo, population[i], population[i+1], rng);
             
             population[i].mutate(rng, mutProb);
             population[i+1].mutate(rng, mutProb);
