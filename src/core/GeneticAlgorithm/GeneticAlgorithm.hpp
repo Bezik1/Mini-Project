@@ -17,31 +17,31 @@ namespace LcVRPContest {
 	 * @details GA is the only class that assigns dynamic memory and manages it. It alocates 
 	 * data using big raw arrays of int. 
 	 *
-	 *	@param evaluator it's the pointer to the evaluator object that measures fitness of individuals
-	 *	@param optimizer it's the pointer to optimizer object, that runs single iteration of GA and calculate best genome
+	 * @param evaluator it's the pointer to the evaluator object that measures fitness of individuals
+	 * @param optimizer it's the pointer to optimizer object, that runs single iteration of GA and calculate best genome
 
-	 *	@param popSize 	specifies population size
-	 *	@param numTurn 	specifies number of turns used in Optimizer::tournamentSelection to select best mate
-	 *	@param numEpochs number of epochs GA loop will be running for
-	 *	@param crossoverProb probability of crossover occurance, in case it didn't individuals are copied to next generation
-	 *	@param mutProb 	probability of mutation occurance
+	 * @param popSize 	specifies population size
+	 * @param numTurn 	specifies number of turns used in Optimizer::tournamentSelection to select best mate
+	 * @param numEpochs number of epochs GA loop will be running for
+	 * @param crossoverProb probability of crossover occurance, in case it didn't individuals are copied to next generation
+	 * @param mutProb 	probability of mutation occurance
 
 	 * @param folderName specifies folder location that points to datasets
 	 * @param instnaceName specifies file name in the specific dataset
 
-	 *	@property population it's the pointer to table of Individuals that are used to optimize the best solution
-	 *	@property previousPopulation it's the pointer to table of Individuals that were used one iteration ago, 
+	 * @property population it's the pointer to table of Individuals that are used to optimize the best solution
+	 * @property previousPopulation it's the pointer to table of Individuals that were used one iteration ago, 
 		initially it's the same as population
 
-	 *	@property numCustomers 	it's number of places that are need to be visited by the truck
-	 *	@property genomes it's the pointer to share table of int, that stores genomes and previousGenomes
-		in order to maximise locality of the variables.
-	 * 	@property prevGenomes it's the pointer to previous generation geneome int table 
+	 * @property numCustomers 	it's number of places that are need to be visited by the truck
+	 * @property genomes it's the pointer to share table of int, that stores genomes and previousGenomes
+	 * in order to maximise locality of the variables.
+	 * @property prevGenomes it's the pointer to previous generation geneome int table 
 
-	 *	@property currentBest it's the copy of the best Individual created up to this point by GA
-	 *	@property bestGenomeBuffer it's the memory buffer for the best individual
+	 * @property currentBest it's the copy of the best Individual created up to this point by GA
+	 * @property bestGenomeBuffer it's the memory buffer for the best individual
 	
-	 *	@property rng it's the pointer to the random number generation objecg
+	 * @property rng it's the pointer to the random number generation objecg
 	 */
 	class GeneticAlgorithm {
 		public:

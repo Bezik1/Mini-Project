@@ -27,7 +27,7 @@ Individual::Individual(const Individual& other)
     numGroups(other.numGroups), fitness(other.fitness) {
 }
 
-Individual& Individual::operator=(const Individual& other) {
+Individual& Individual::operator = (const Individual& other) {
     if (this != &other) {
         evaluator = other.evaluator;
         numCustomers = other.numCustomers;
@@ -47,11 +47,11 @@ Individual& Individual::operator=(const Individual& other) {
     return *this;
 }
 
-bool Individual::operator>(const Individual& other) const {
+bool Individual::operator > (const Individual& other) const {
     return this->fitness > other.fitness;
 }
 
-bool Individual::operator<(const Individual& other) const {
+bool Individual::operator < (const Individual& other) const {
     return this->fitness < other.fitness;
 }
 

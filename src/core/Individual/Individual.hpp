@@ -53,7 +53,7 @@ namespace LcVRPContest {
             void copyGenome(const int* otherGenome);
 
             Individual(const Individual& other);
-            Individual& operator=(const Individual& other);
+            Individual& operator = (const Individual& other);
 
             /**
              * @brief This function crosses the individuals in place, so there is no memory additionally
@@ -97,7 +97,7 @@ namespace LcVRPContest {
              * 
              * @return Boolean information about wheter individual is greater than the other
              */
-            bool operator>(const Individual& other) const;
+            bool operator > (const Individual& other) const;
 
             /**
              * @brief Compare Individual, specificly this operator uses the fitness of current
@@ -108,7 +108,7 @@ namespace LcVRPContest {
              * @return Boolean information about wheter individual is smaller than the other
              */
             
-            bool operator<(const Individual& other) const;
+            bool operator < (const Individual& other) const;
 
             double getFitness() const { return fitness; }
             const int* getGenome() const { return genome; }
