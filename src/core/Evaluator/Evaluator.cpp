@@ -50,9 +50,9 @@ double Evaluator::evaluate(const int* solution) {
     return totalCost;
 }
 
-bool Evaluator::isValidSolution(const int* grouping) const {
+bool Evaluator::isValidSolution(const int* solution) const {
     for (int i = 0; i < numCustomers; ++i) {
-        if (grouping[i] < getLowerBound() || grouping[i] > getUpperBound()) {
+        if (solution[i] < getLowerBound() || solution[i] > getUpperBound()) {
             return false;
         }
     }
@@ -94,7 +94,7 @@ bool Evaluator::validateConstraints() const {
 	return true;
 }
 
-void Evaluator::buildRoutes(const int* grouping) const {
+void Evaluator::buildRoutes(const int* solution) const {
     for (int i = 0; i < numGroups; ++i) {
         routeSizes[i] = 0;
     }
@@ -105,7 +105,7 @@ void Evaluator::buildRoutes(const int* grouping) const {
         int customerId = permutation[i];
         int customerIndex = customerId - 2;
         
-        int group = grouping[customerIndex];
+        int group = solution[customerIndex];
         
         int pos = routeSizes[group];
         routesBuffer[group][pos] = customerId;

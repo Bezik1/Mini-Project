@@ -79,13 +79,6 @@ Individual& Optimizer::tournamentSelection() {
     return *best;
 }
 
-void Optimizer::initRandomGenome(int* individual, int numCustomers) {
-    uniform_int_distribution<int> dist(0, evaluator.getNumGroups() - 1); 
-    for (int i = 0; i < numCustomers; ++i) {
-        individual[i] = dist(rng);
-    }
-}
-
 void Optimizer::printGenome(const int* individual, int numCustomers) const {
 	cout << "Genome: [";
     for (size_t i = 0; i < numCustomers; ++i) {

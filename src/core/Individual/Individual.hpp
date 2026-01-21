@@ -13,8 +13,7 @@ namespace LcVRPContest {
      * for crossing with other indivdual, mutation this instance ob object, of copying other genome and to recalculate
      * fitness.
      * 
-     * @details evaluator it's the pointer to the evaluator object that measures fitness of individuals
-     *
+     * @property evaluator it's the pointer to the evaluator object that measures fitness of individuals
      * @property genome represents individual solution of the individual
      * @property numCustomers it's number of places that are need to be visited by the truck
      * @property numGroups it's the numbers of possible values that individual value in the genome may take
@@ -79,6 +78,7 @@ namespace LcVRPContest {
              * @param rng random number generator reference, used in order to generate current chance for mutation
              * 
              * @return void
+             * 
              */
             void mutate(mt19937 &rng, double mutProb);
 
